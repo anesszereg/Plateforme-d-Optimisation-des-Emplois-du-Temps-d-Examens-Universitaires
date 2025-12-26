@@ -53,7 +53,14 @@ st.markdown("""
 
 @st.cache_resource
 def get_database():
-    return Database()
+    try:
+        db = Database()
+        # Test connection
+        with db.get_connection() as conn:
+            pass
+        return db
+    except Exception as e:
+        return None
 
 @st.cache_resource
 def get_analytics(_db):
@@ -66,7 +73,70 @@ def get_scheduler(_db):
 def main():
     st.markdown('<div class="main-header">🎓 Plateforme d\'Optimisation des Emplois du Temps d\'Examens</div>', unsafe_allow_html=True)
     
+    # Check database connection
     db = get_database()
+    
+    if db is None:
+        st.error("🔴 **Database Connection Failed**")
+        st.warning("""
+        ### Database Not Configured
+        
+        The application cannot connect to the database. Please configure your database credentials:
+        
+        **For Streamlit Cloud:**
+        1. Go to your app settings
+        2. Click on "Secrets" 
+        3. Add the following configuration:
+        
+        ```toml
+        DB_HOST = "your-database-host"
+        DB_PORT = "5432"
+        DB_NAME = "exam_scheduling"
+        DB_USER = "your-username"
+        DB_PASSWORD = "your-password"
+        ```
+        
+        **Need a database?**
+        - **Supabase** (FREE): https://supabase.com
+        - **Neon** (FREE): https://neon.tech
+        - **ElephantSQL** (FREE): https://elephantsql.com
+        
+        After configuring secrets, reboot your app.
+        """)
+        
+        with st.expander("📖 Detailed Setup Instructions"):
+            st.markdown("""
+            ### Step 1: Create a Database
+            
+            1. Go to [Supabase](https://supabase.com) (recommended)
+            2. Create a new project
+            3. Wait for initialization (~2 minutes)
+            4. Go to Settings → Database
+            5. Copy the connection details
+            
+            ### Step 2: Add Secrets to Streamlit Cloud
+            
+            1. In your Streamlit Cloud dashboard
+            2. Click on your app → Settings → Secrets
+            3. Paste the configuration with your actual values
+            4. Click Save
+            
+            ### Step 3: Initialize Database
+            
+            Use Supabase SQL Editor to run:
+            - `database/schema.sql`
+            - `database/queries.sql`
+            - `database/indexes.sql`
+            
+            Then run: `scripts/generate_data.py` to populate data
+            
+            ### Step 4: Reboot App
+            
+            Click "Reboot app" in Streamlit Cloud dashboard.
+            """)
+        
+        st.stop()
+    
     analytics = get_analytics(db)
     
     st.sidebar.title("📋 Navigation")
