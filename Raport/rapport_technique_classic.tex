@@ -1,0 +1,490 @@
+\documentclass[12pt,a4paper,twoside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{multirow,array}
+\usepackage{caption,subcaption}
+\usepackage{tikz}
+\usepackage{setspace}
+
+\geometry{a4paper,left=3cm,right=2.5cm,top=2.5cm,bottom=2.5cm,headheight=15pt}
+
+\definecolor{primaryblue}{RGB}{31,119,180}
+\definecolor{secondaryblue}{RGB}{174,199,232}
+\definecolor{darkgray}{RGB}{51,51,51}
+\definecolor{lightgray}{RGB}{240,240,240}
+
+\lstset{
+    backgroundcolor=\color{lightgray},
+    commentstyle=\color{green!60!black}\itshape,
+    keywordstyle=\color{primaryblue}\bfseries,
+    numberstyle=\tiny\color{darkgray},
+    stringstyle=\color{purple},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    numbers=left,
+    frame=single,
+    captionpos=b
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryblue,
+    urlcolor=primaryblue,
+    pdftitle={Rapport Technique - Plateforme d'Optimisation des EDT},
+    bookmarksopen=true
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\slshape\nouppercase{\leftmark}}
+\fancyhead[RO]{\slshape\nouppercase{\rightmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{primaryblue}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\onehalfspacing
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    {\color{primaryblue}\rule{\textwidth}{2pt}}
+    \vspace{0.5cm}
+    
+    {\Huge\bfseries\color{primaryblue} PLATEFORME D'OPTIMISATION\\[0.3cm]
+    DES EMPLOIS DU TEMPS\\[0.3cm]
+    D'EXAMENS UNIVERSITAIRES\\[1cm]}
+    
+    {\color{primaryblue}\rule{\textwidth}{2pt}}
+    \vspace{1.5cm}
+    
+    {\LARGE\bfseries Rapport Technique Complet\\[0.5cm]}
+    
+    \vspace{1cm}
+    
+    \begin{tcolorbox}[colback=lightgray,colframe=primaryblue,width=0.8\textwidth,arc=3mm,boxrule=1.5pt]
+        \centering
+        {\Large\bfseries Système de Gestion Intelligent}\\[0.3cm]
+        {\large PostgreSQL • Python • Streamlit}\\[0.3cm]
+        {\large 13,051 Étudiants • 110 Formations • 1,118 Modules}
+    \end{tcolorbox}
+    
+    \vspace{2cm}
+    
+    {\Large\bfseries Projet de Base de Données Avancées\\[0.3cm]}
+    {\large Année Universitaire 2024-2025\\[1cm]}
+    
+    \vfill
+    
+    \begin{tabular}{rl}
+        \textbf{Auteur:} & Projet Académique \\[0.2cm]
+        \textbf{Encadrant:} & Département Informatique \\[0.2cm]
+        \textbf{Date:} & \today \\[0.2cm]
+        \textbf{Version:} & 2.0 - Classic Edition
+    \end{tabular}
+    
+    \vspace{1cm}
+    {\color{primaryblue}\rule{\textwidth}{2pt}}
+\end{titlepage}
+
+\cleardoublepage
+\pagenumbering{roman}
+
+\chapter*{Résumé Exécutif}
+\addcontentsline{toc}{chapter}{Résumé Exécutif}
+
+Ce rapport présente la conception, l'implémentation et l'évaluation d'une plateforme complète d'optimisation des emplois du temps d'examens universitaires développée pour gérer plus de 13,000 étudiants, 110 formations et 1,118 modules à travers 7 départements.
+
+\section*{Objectifs et Portée}
+
+Le système vise à automatiser et optimiser la génération des emplois du temps d'examens tout en garantissant le respect de contraintes multiples et complexes. Les résultats démontrent une réussite complète avec 100\% de tests validés et une génération d'emploi du temps en moins de 2 minutes.
+
+\section*{Architecture Technique}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Base de données}: PostgreSQL 14.18 avec 10 tables, 8 vues analytiques
+    \item \textbf{Backend}: Python 3.9+ avec algorithmes optimisés
+    \item \textbf{Frontend}: Streamlit 1.29.0 avec 5 interfaces utilisateur
+    \item \textbf{Performance}: Génération en 78 secondes, 0 conflit critique
+\end{itemize}
+
+\section*{Résultats Clés}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Métrique} & \textbf{Valeur} \\ \midrule
+Taux de réussite des tests & 100\% (9/9) \\
+Examens planifiés & 1,118 \\
+Temps de génération & 78 secondes \\
+Conflits détectés & 0 critiques \\
+Intégrité des données & 100\% validée \\ \bottomrule
+\end{tabular}
+\caption{Résultats de performance du système}
+\end{table}
+
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+
+\section{Contexte et Problématique}
+
+La gestion des emplois du temps d'examens dans une université moderne représente un défi organisationnel majeur nécessitant la coordination de multiples ressources tout en respectant des contraintes strictes.
+
+\subsection{Défis de la Planification Manuelle}
+
+\begin{itemize}[leftmargin=*]
+    \item Temps de préparation: 2-3 semaines pour un planning complet
+    \item Risque élevé d'erreurs humaines et de conflits
+    \item Sous-utilisation des ressources disponibles
+    \item Difficulté à gérer les modifications de dernière minute
+\end{itemize}
+
+\subsection{Solution Proposée}
+
+Ce projet développe un système informatique capable de générer automatiquement des emplois du temps optimisés en respectant l'ensemble des contraintes réglementaires et pédagogiques.
+
+\section{Objectifs du Projet}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}p{0.4\textwidth}p{0.5\textwidth}@{}}
+\toprule
+\textbf{Objectif} & \textbf{Critère de Succès} \\ \midrule
+Génération automatique & Planning complet en < 2 minutes \\
+Respect des contraintes & 100\% des contraintes critiques \\
+Détection de conflits & Identification automatique \\
+Interfaces utilisateur & 5 interfaces adaptées \\
+Performance & Support de 20,000+ étudiants \\ \bottomrule
+\end{tabular}
+\caption{Objectifs et critères de succès}
+\end{table}
+
+\section{Périmètre}
+
+Le système couvre 7 départements, 110 formations, 13,051 étudiants, 148 professeurs, 1,118 modules et 126 salles.
+
+\chapter{Architecture Technique}
+
+\section{Vue d'Ensemble}
+
+Le système adopte une architecture en trois couches distinctes:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Couche Données}: PostgreSQL avec tables, vues et fonctions
+    \item \textbf{Couche Métier}: Python avec modules spécialisés
+    \item \textbf{Couche Présentation}: Streamlit avec interfaces interactives
+\end{enumerate}
+
+\section{Stack Technologique}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Composant} & \textbf{Technologie} \\ \midrule
+SGBD & PostgreSQL 14.18 \\
+Backend & Python 3.9+ \\
+Framework Web & Streamlit 1.29.0 \\
+Connecteur BD & psycopg2-binary 2.9.9 \\
+Visualisation & Plotly 5.18.0 \\
+Analyse & Pandas 2.1.4, NumPy 1.26.2 \\
+Export Excel & openpyxl 3.1.5 \\ \bottomrule
+\end{tabular}
+\caption{Stack technologique}
+\end{table}
+
+\section{Modules Python}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{database.py}: Gestion des connexions et requêtes
+    \item \texttt{constraints.py}: Vérification des contraintes
+    \item \texttt{fast\_scheduler.py}: Algorithme optimisé de planification
+    \item \texttt{analytics.py}: Calcul des KPIs et statistiques
+\end{itemize}
+
+\chapter{Modèle de Données}
+
+\section{Schéma Relationnel}
+
+La base de données comprend 10 tables principales:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Table} & \textbf{Rôle} & \textbf{Cardinalité} \\ \midrule
+departements & Départements universitaires & 7 \\
+formations & Programmes d'études & 110 \\
+etudiants & Étudiants inscrits & 13,051 \\
+professeurs & Corps enseignant & 148 \\
+modules & Modules d'enseignement & 1,118 \\
+inscriptions & Inscriptions & 105,468 \\
+lieu\_examen & Salles et amphithéâtres & 126 \\
+periodes\_examen & Périodes d'examens & 1 \\
+examens & Examens planifiés & 1,118 \\
+surveillances & Affectations & Variable \\ \bottomrule
+\end{tabular}
+\caption{Tables principales}
+\end{table}
+
+\section{Vues Analytiques}
+
+Huit vues fournissent des analyses en temps réel:
+
+\begin{enumerate}[leftmargin=*]
+    \item \texttt{kpi\_global}: Indicateurs clés globaux
+    \item \texttt{stats\_departement}: Statistiques par département
+    \item \texttt{conflits\_etudiants}: Détection conflits étudiants
+    \item \texttt{conflits\_professeurs}: Détection conflits professeurs
+    \item \texttt{conflits\_capacite}: Dépassements de capacité
+    \item \texttt{conflits\_salles}: Conflits d'occupation
+    \item \texttt{occupation\_salles}: Taux d'occupation
+    \item \texttt{charge\_professeurs}: Charge de travail
+\end{enumerate}
+
+\chapter{Algorithme de Planification}
+
+\section{Principe FastScheduler}
+
+L'algorithme FastScheduler utilise une approche heuristique optimisée:
+
+\begin{enumerate}[leftmargin=*]
+    \item Tri des modules par nombre d'inscrits (décroissant)
+    \item Allocation séquentielle avec vérification en mémoire
+    \item Insertion par lots pour performance maximale
+    \item Optimisation post-génération
+\end{enumerate}
+
+\section{Contraintes Respectées}
+
+\begin{itemize}[leftmargin=*]
+    \item Maximum 1 examen par jour par étudiant
+    \item Maximum 3 examens par jour par professeur
+    \item Capacité des salles respectée
+    \item Pas de chevauchement de salles
+    \item Créneaux: 8h30, 11h00, 14h30, 17h00
+\end{itemize}
+
+\section{Performance}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Métrique} & \textbf{Valeur} \\ \midrule
+Temps de génération & 78 secondes \\
+Modules traités & 1,118 \\
+Examens planifiés & 1,118 (100\%) \\
+Échecs & 0 \\
+Conflits critiques & 0 \\ \bottomrule
+\end{tabular}
+\caption{Performance de l'algorithme}
+\end{table}
+
+\chapter{Interfaces Utilisateur}
+
+\section{Pages Streamlit}
+
+Le système offre 5 interfaces adaptées:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lp{0.6\textwidth}@{}}
+\toprule
+\textbf{Page} & \textbf{Fonctionnalités} \\ \midrule
+Dashboard & KPIs globaux, détection de conflits \\
+Administration & Génération EDT, optimisation \\
+Statistiques & Analyses stratégiques, graphiques \\
+Départements & Vues départementales \\
+Consultation & Plannings personnalisés \\ \bottomrule
+\end{tabular}
+\caption{Pages de l'application}
+\end{table}
+
+\section{Fonctionnalités Clés}
+
+\begin{itemize}[leftmargin=*]
+    \item Génération automatique en un clic
+    \item Visualisations interactives avec Plotly
+    \item Export CSV et Excel
+    \item Détection automatique de conflits
+    \item Planning par formation (nouveau)
+\end{itemize}
+
+\chapter{Tests et Validation}
+
+\section{Résultats des Tests}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Catégorie} & \textbf{Statut} & \textbf{Détails} \\ \midrule
+Connexion BD & ✓ & PostgreSQL 14.18 \\
+Tables & ✓ & 10/10 \\
+Vues & ✓ & 8/8 \\
+Fonctions & ✓ & 2/2 \\
+Méthodes Python & ✓ & 10/10 \\
+Contraintes & ✓ & Tous types détectés \\
+Analytique & ✓ & 5/5 fonctions \\
+Planification & ✓ & 1,118 examens \\
+Intégrité & ✓ & 0 orphelins \\ \bottomrule
+\end{tabular}
+\caption{Résultats des tests - 100\% réussite}
+\end{table}
+
+\section{Performance des Requêtes}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Requête} & \textbf{Temps (ms)} & \textbf{Résultats} \\ \midrule
+KPIs Globaux & 54.93 & 1 \\
+Stats Départements & 2,864.90 & 7 \\
+Conflits Étudiants & 14.65 & 0 \\
+Conflits Professeurs & 13.03 & 0 \\
+Liste Modules & 27.45 & 1,118 \\ \bottomrule
+\end{tabular}
+\caption{Performance des requêtes SQL}
+\end{table}
+
+\chapter{Déploiement}
+
+\section{Options de Déploiement}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Plateforme} & \textbf{Coût} & \textbf{Difficulté} & \textbf{Recommandé} \\ \midrule
+Streamlit Cloud & Gratuit & Facile & Démo \\
+Railway & \$5/mois & Moyen & Production \\
+Serveur Universitaire & Gratuit & Moyen & Optimal \\ \bottomrule
+\end{tabular}
+\caption{Options de déploiement}
+\end{table}
+
+\section{Configuration Requise}
+
+\begin{itemize}[leftmargin=*]
+    \item Serveur: 4GB RAM, 2 CPU cores
+    \item PostgreSQL 14+
+    \item Python 3.9+
+    \item Connexion internet (pour Streamlit Cloud)
+\end{itemize}
+
+\chapter{Conclusion}
+
+\section{Objectifs Atteints}
+
+Le projet a réussi à:
+
+\begin{itemize}[leftmargin=*]
+    \item ✓ Implémenter un système complet de gestion d'examens
+    \item ✓ Gérer plus de 100,000 inscriptions
+    \item ✓ Respecter toutes les contraintes critiques
+    \item ✓ Fournir des interfaces utilisateur intuitives
+    \item ✓ Garantir l'intégrité des données (100\%)
+    \item ✓ Déployer avec succès sur Streamlit Cloud
+\end{itemize}
+
+\section{Points Forts}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Architecture robuste}: Séparation claire des couches
+    \item \textbf{Performance}: Génération en moins de 2 minutes
+    \item \textbf{Qualité}: Tests complets, documentation exhaustive
+    \item \textbf{Extensibilité}: Facile à étendre et maintenir
+    \item \textbf{Utilisabilité}: Interface moderne et intuitive
+\end{enumerate}
+
+\section{Perspectives}
+
+Le système constitue une base solide pour:
+
+\begin{itemize}[leftmargin=*]
+    \item Déploiement en production universitaire
+    \item Extension à d'autres types de planification
+    \item Intégration avec systèmes existants
+    \item Développement d'applications mobiles
+    \item Amélioration continue des algorithmes
+\end{itemize}
+
+\appendix
+
+\chapter{Structure du Projet}
+
+\begin{lstlisting}
+DB PROJECT/
+├── app.py                      # Application principale
+├── requirements.txt            # Dépendances Python
+├── database/
+│   ├── schema.sql             # Schéma BD
+│   ├── queries.sql            # Vues et fonctions
+│   └── indexes.sql            # Indexes
+├── src/
+│   ├── database.py            # Module BD
+│   ├── constraints.py         # Vérificateur
+│   ├── fast_scheduler.py      # Algorithme optimisé
+│   └── analytics.py           # Analytique
+├── scripts/
+│   ├── init_database.py       # Initialisation
+│   ├── generate_data.py       # Génération données
+│   └── test_all_functions.py # Tests
+└── pages/
+    ├── 1_Administration.py    # Interface admin
+    ├── 2_Statistiques.py      # Analyses
+    ├── 3_Départements.py      # Vues dept.
+    └── 4_Consultation.py      # Plannings
+\end{lstlisting}
+
+\chapter{Références}
+
+\begin{itemize}[leftmargin=*]
+    \item PostgreSQL Documentation: \url{https://www.postgresql.org/docs/}
+    \item Streamlit Documentation: \url{https://docs.streamlit.io/}
+    \item Python psycopg2: \url{https://www.psycopg.org/docs/}
+    \item Plotly Python: \url{https://plotly.com/python/}
+\end{itemize}
+
+\vfill
+\begin{center}
+\rule{0.8\textwidth}{0.4pt}
+
+\textbf{Rapport Technique - Plateforme d'Optimisation des EDT}
+
+Généré le \today
+
+\rule{0.8\textwidth}{0.4pt}
+\end{center}
+
+\end{document}
