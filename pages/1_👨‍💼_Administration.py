@@ -38,7 +38,7 @@ def main():
     scheduler = get_scheduler(db)
     analytics = get_analytics(db)
     
-    tab1, tab2, tab3, tab4 = st.tabs(["🚀 Génération d'EDT", "🔍 Détection de Conflits", "📋 Examens Planifiés", "🏛️ Planning par Département"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🚀 Génération d'EDT", "🔍 Détection de Conflits", "📋 Examens Planifiés", "🏛️ Planning par Département", "🎓 Planning par Formation"])
     
     with tab1:
         st.header("🚀 Génération Automatique d'Emploi du Temps")
@@ -454,6 +454,218 @@ def main():
                     st.info("Aucun examen planifié pour cette période")
             else:
                 st.warning("Aucun département trouvé")
+        else:
+            st.warning("Aucune période d'examen active")
+    
+    with tab5:
+        st.header("🎓 Planning par Formation")
+        
+        periodes = db.get_periodes_examen(actif=True)
+        
+        if periodes:
+            periode_options_form = {
+                f"{p['nom']} ({p['date_debut']} - {p['date_fin']})": p['id'] 
+                for p in periodes
+            }
+            
+            selected_periode_form = st.selectbox(
+                "Période d'examen",
+                options=list(periode_options_form.keys()),
+                key="form_periode"
+            )
+            
+            periode_id_form = periode_options_form[selected_periode_form]
+            
+            # Get all formations with exams
+            formations_summary = db.get_all_planning_by_formations(periode_id_form)
+            
+            if formations_summary:
+                st.subheader("📊 Vue d'ensemble des formations")
+                
+                # Summary metrics
+                col_m1, col_m2, col_m3 = st.columns(3)
+                with col_m1:
+                    st.metric("Formations avec examens", len(formations_summary))
+                with col_m2:
+                    total_exams = sum(f['nb_examens'] for f in formations_summary)
+                    st.metric("Total examens", total_exams)
+                with col_m3:
+                    avg_exams = total_exams / len(formations_summary) if formations_summary else 0
+                    st.metric("Moyenne par formation", f"{avg_exams:.1f}")
+                
+                st.markdown("---")
+                
+                # Formation selector
+                formation_options = {
+                    f"{f['formation_niveau']} - {f['formation_nom']} ({f['departement_nom']}) - {f['nb_examens']} examens": f['formation_id']
+                    for f in formations_summary
+                }
+                
+                selected_formation_name = st.selectbox(
+                    "Sélectionnez une formation",
+                    options=list(formation_options.keys())
+                )
+                
+                formation_id = formation_options[selected_formation_name]
+                
+                # Get detailed planning for selected formation
+                planning = db.get_planning_by_formation(formation_id, periode_id_form)
+                
+                if planning:
+                    st.success(f"✅ {len(planning)} examen(s) planifié(s) pour cette formation")
+                    
+                    # Formation info
+                    formation_info = planning[0]
+                    col_info1, col_info2, col_info3 = st.columns(3)
+                    
+                    with col_info1:
+                        st.info(f"**Formation:** {formation_info['formation_nom']}")
+                    with col_info2:
+                        st.info(f"**Niveau:** {formation_info['formation_niveau']}")
+                    with col_info3:
+                        st.info(f"**Département:** {formation_info['departement_nom']}")
+                    
+                    st.markdown("---")
+                    
+                    # Display options
+                    view_mode = st.radio(
+                        "Mode d'affichage",
+                        ["📅 Calendrier", "📋 Liste Détaillée", "📊 Tableau"],
+                        horizontal=True,
+                        key="view_mode_formation"
+                    )
+                    
+                    df_planning = pd.DataFrame(planning)
+                    df_planning['date'] = pd.to_datetime(df_planning['date_heure']).dt.date
+                    df_planning['heure'] = pd.to_datetime(df_planning['date_heure']).dt.strftime('%H:%M')
+                    df_planning['date_str'] = pd.to_datetime(df_planning['date_heure']).dt.strftime('%d/%m/%Y')
+                    
+                    if view_mode == "📅 Calendrier":
+                        # Group by date
+                        dates = sorted(df_planning['date'].unique())
+                        
+                        for date in dates:
+                            exams_on_date = df_planning[df_planning['date'] == date].sort_values('heure')
+                            
+                            st.markdown(f"### 📅 {date.strftime('%A %d %B %Y')}")
+                            
+                            for idx, exam in exams_on_date.iterrows():
+                                with st.container():
+                                    col1, col2, col3 = st.columns([1, 2, 1])
+                                    
+                                    with col1:
+                                        st.markdown(f"**⏰ {exam['heure']}**")
+                                        st.caption(f"{exam['duree_minutes']} min")
+                                    
+                                    with col2:
+                                        st.markdown(f"**📚 {exam['module_nom']}**")
+                                        st.caption(f"Code: {exam['module_code']} | {exam['credits']} crédits | Semestre {exam['semestre']}")
+                                        st.caption(f"👨‍🏫 {exam['professeur_responsable']} ({exam['professeur_grade']})")
+                                    
+                                    with col3:
+                                        st.markdown(f"**📍 {exam['salle_nom']}**")
+                                        st.caption(f"{exam['salle_type'].title()}")
+                                        st.caption(f"👥 {exam['nb_inscrits']}/{exam['capacite_examen']} places")
+                                
+                                st.markdown("---")
+                    
+                    elif view_mode == "📋 Liste Détaillée":
+                        for idx, exam in df_planning.iterrows():
+                            with st.expander(f"📚 {exam['module_nom']} - {exam['date_str']} à {exam['heure']}"):
+                                col1, col2 = st.columns(2)
+                                
+                                with col1:
+                                    st.markdown("**📖 Informations Module**")
+                                    st.write(f"- **Code:** {exam['module_code']}")
+                                    st.write(f"- **Crédits:** {exam['credits']}")
+                                    st.write(f"- **Semestre:** {exam['semestre']}")
+                                    st.write(f"- **Durée examen:** {exam['duree_minutes']} minutes")
+                                    st.write(f"- **Inscrits:** {exam['nb_inscrits']} étudiants")
+                                
+                                with col2:
+                                    st.markdown("**📍 Logistique**")
+                                    st.write(f"- **Date:** {exam['date_str']}")
+                                    st.write(f"- **Heure:** {exam['heure']}")
+                                    st.write(f"- **Salle:** {exam['salle_nom']}")
+                                    st.write(f"- **Type:** {exam['salle_type'].title()}")
+                                    st.write(f"- **Capacité:** {exam['capacite_examen']} places")
+                                
+                                st.markdown("**👨‍🏫 Responsable**")
+                                st.write(f"{exam['professeur_responsable']} - {exam['professeur_grade']}")
+                    
+                    else:  # Tableau
+                        st.dataframe(
+                            df_planning[['date_str', 'heure', 'module_nom', 'module_code', 
+                                       'credits', 'semestre', 'salle_nom', 'salle_type',
+                                       'professeur_responsable', 'nb_inscrits', 'duree_minutes']],
+                            use_container_width=True,
+                            hide_index=True,
+                            column_config={
+                                "date_str": "Date",
+                                "heure": "Heure",
+                                "module_nom": "Module",
+                                "module_code": "Code",
+                                "credits": "Crédits",
+                                "semestre": "Sem.",
+                                "salle_nom": "Salle",
+                                "salle_type": "Type",
+                                "professeur_responsable": "Professeur",
+                                "nb_inscrits": "Inscrits",
+                                "duree_minutes": "Durée (min)"
+                            }
+                        )
+                    
+                    # Statistics
+                    st.markdown("---")
+                    st.subheader("📊 Statistiques")
+                    
+                    col_stat1, col_stat2, col_stat3, col_stat4 = st.columns(4)
+                    
+                    with col_stat1:
+                        st.metric("Total examens", len(planning))
+                    
+                    with col_stat2:
+                        total_students = df_planning['nb_inscrits'].sum()
+                        st.metric("Total étudiants-examens", total_students)
+                    
+                    with col_stat3:
+                        avg_duration = df_planning['duree_minutes'].mean()
+                        st.metric("Durée moyenne", f"{avg_duration:.0f} min")
+                    
+                    with col_stat4:
+                        nb_days = len(df_planning['date'].unique())
+                        st.metric("Jours d'examen", nb_days)
+                    
+                    # Export options
+                    st.markdown("---")
+                    col_exp1, col_exp2 = st.columns(2)
+                    
+                    with col_exp1:
+                        csv = df_planning.to_csv(index=False, encoding='utf-8')
+                        st.download_button(
+                            label="📥 Exporter en CSV",
+                            data=csv,
+                            file_name=f"planning_formation_{formation_id}_{periode_id_form}.csv",
+                            mime="text/csv"
+                        )
+                    
+                    with col_exp2:
+                        import io
+                        output = io.BytesIO()
+                        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                            df_planning.to_excel(writer, index=False, sheet_name='Planning')
+                        output.seek(0)
+                        st.download_button(
+                            label="📊 Exporter en Excel",
+                            data=output,
+                            file_name=f"planning_formation_{formation_id}_{periode_id_form}.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                
+                else:
+                    st.info("Aucun examen planifié pour cette formation")
+            else:
+                st.info("Aucune formation avec examens planifiés pour cette période")
         else:
             st.warning("Aucune période d'examen active")
 

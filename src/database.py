@@ -213,3 +213,56 @@ class Database:
             ORDER BY COUNT(i.id) DESC
         """
         return self.execute_query(query)
+    
+    def get_planning_by_formation(self, formation_id, periode_id):
+        """Get exam planning for a specific formation"""
+        query = """
+            SELECT 
+                e.id as examen_id,
+                e.date_heure,
+                e.duree_minutes,
+                e.nb_inscrits,
+                m.nom as module_nom,
+                m.code as module_code,
+                m.credits,
+                m.semestre,
+                l.nom as salle_nom,
+                l.type as salle_type,
+                l.capacite_examen,
+                p.nom || ' ' || p.prenom as professeur_responsable,
+                p.grade as professeur_grade,
+                f.nom as formation_nom,
+                f.niveau as formation_niveau,
+                d.nom as departement_nom
+            FROM examens e
+            JOIN modules m ON e.module_id = m.id
+            JOIN formations f ON m.formation_id = f.id
+            JOIN departements d ON f.dept_id = d.id
+            JOIN lieu_examen l ON e.salle_id = l.id
+            JOIN professeurs p ON e.prof_responsable_id = p.id
+            WHERE m.formation_id = %s AND e.periode_id = %s
+            ORDER BY e.date_heure, m.nom
+        """
+        return self.execute_query(query, (formation_id, periode_id))
+    
+    def get_all_planning_by_formations(self, periode_id):
+        """Get exam planning grouped by all formations"""
+        query = """
+            SELECT 
+                f.id as formation_id,
+                f.nom as formation_nom,
+                f.niveau as formation_niveau,
+                f.code as formation_code,
+                d.nom as departement_nom,
+                COUNT(e.id) as nb_examens,
+                MIN(e.date_heure) as premier_examen,
+                MAX(e.date_heure) as dernier_examen
+            FROM formations f
+            JOIN departements d ON f.dept_id = d.id
+            LEFT JOIN modules m ON m.formation_id = f.id
+            LEFT JOIN examens e ON e.module_id = m.id AND e.periode_id = %s
+            GROUP BY f.id, f.nom, f.niveau, f.code, d.nom
+            HAVING COUNT(e.id) > 0
+            ORDER BY d.nom, f.niveau, f.nom
+        """
+        return self.execute_query(query, (periode_id,))
