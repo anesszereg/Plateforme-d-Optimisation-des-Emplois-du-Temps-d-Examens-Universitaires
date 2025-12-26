@@ -651,14 +651,147 @@ def main():
                     
                     with col_exp2:
                         import io
+                        from openpyxl import Workbook
+                        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+                        from openpyxl.utils import get_column_letter
+                        
                         output = io.BytesIO()
-                        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                            df_planning.to_excel(writer, index=False, sheet_name='Planning')
+                        
+                        # Create calendar-style Excel
+                        wb = Workbook()
+                        ws = wb.active
+                        ws.title = "Planning Calendrier"
+                        
+                        # Get unique dates and time slots
+                        dates = sorted(df_planning['date'].unique())
+                        time_slots = ['08:30', '11:00', '14:30', '17:00']
+                        
+                        # Define styles
+                        header_fill = PatternFill(start_color="1F77B4", end_color="1F77B4", fill_type="solid")
+                        header_font = Font(bold=True, color="FFFFFF", size=12)
+                        time_fill = PatternFill(start_color="AEC7E8", end_color="AEC7E8", fill_type="solid")
+                        time_font = Font(bold=True, size=11)
+                        exam_fill = PatternFill(start_color="D4EDDA", end_color="D4EDDA", fill_type="solid")
+                        exam_font = Font(size=10)
+                        border = Border(
+                            left=Side(style='thin'),
+                            right=Side(style='thin'),
+                            top=Side(style='thin'),
+                            bottom=Side(style='thin')
+                        )
+                        
+                        # Formation info header
+                        ws.merge_cells('A1:' + get_column_letter(len(dates) + 1) + '1')
+                        ws['A1'] = f"Planning - {formation_info['formation_niveau']} {formation_info['formation_nom']}"
+                        ws['A1'].font = Font(bold=True, size=14, color="1F77B4")
+                        ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+                        
+                        ws.merge_cells('A2:' + get_column_letter(len(dates) + 1) + '2')
+                        ws['A2'] = f"Département: {formation_info['departement_nom']} | Période: {selected_periode_form}"
+                        ws['A2'].font = Font(size=11)
+                        ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
+                        
+                        # Headers - Days
+                        ws['A4'] = "Heure"
+                        ws['A4'].fill = header_fill
+                        ws['A4'].font = header_font
+                        ws['A4'].alignment = Alignment(horizontal='center', vertical='center')
+                        ws['A4'].border = border
+                        
+                        for col_idx, date in enumerate(dates, start=2):
+                            cell = ws.cell(row=4, column=col_idx)
+                            cell.value = date.strftime('%d/%m/%Y\n%A')
+                            cell.fill = header_fill
+                            cell.font = header_font
+                            cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+                            cell.border = border
+                            ws.column_dimensions[get_column_letter(col_idx)].width = 35
+                        
+                        ws.column_dimensions['A'].width = 12
+                        ws.row_dimensions[4].height = 35
+                        
+                        # Time slots rows
+                        for row_idx, time_slot in enumerate(time_slots, start=5):
+                            # Time column
+                            time_cell = ws.cell(row=row_idx, column=1)
+                            time_cell.value = time_slot
+                            time_cell.fill = time_fill
+                            time_cell.font = time_font
+                            time_cell.alignment = Alignment(horizontal='center', vertical='center')
+                            time_cell.border = border
+                            ws.row_dimensions[row_idx].height = 60
+                            
+                            # Exam cells for each day
+                            for col_idx, date in enumerate(dates, start=2):
+                                cell = ws.cell(row=row_idx, column=col_idx)
+                                
+                                # Find exam for this date and time
+                                exam = df_planning[
+                                    (df_planning['date'] == date) & 
+                                    (df_planning['heure'] == time_slot)
+                                ]
+                                
+                                if not exam.empty:
+                                    exam_data = exam.iloc[0]
+                                    cell.value = (
+                                        f"{exam_data['module_code']}\n"
+                                        f"{exam_data['module_nom']}\n"
+                                        f"📍 {exam_data['salle_nom']}\n"
+                                        f"👨‍🏫 {exam_data['professeur_responsable']}\n"
+                                        f"👥 {exam_data['nb_inscrits']} étudiants | ⏱️ {exam_data['duree_minutes']} min"
+                                    )
+                                    cell.fill = exam_fill
+                                    cell.font = exam_font
+                                else:
+                                    cell.value = ""
+                                
+                                cell.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
+                                cell.border = border
+                        
+                        # Add summary sheet
+                        ws_summary = wb.create_sheet("Détails")
+                        df_planning_export = df_planning[[
+                            'date_str', 'heure', 'module_code', 'module_nom', 'credits', 
+                            'semestre', 'salle_nom', 'salle_type', 'professeur_responsable', 
+                            'nb_inscrits', 'duree_minutes'
+                        ]].copy()
+                        
+                        # Write summary data
+                        for r_idx, row in enumerate(df_planning_export.values, start=1):
+                            for c_idx, value in enumerate(row, start=1):
+                                ws_summary.cell(row=r_idx + 1, column=c_idx, value=value)
+                        
+                        # Summary headers
+                        headers = ['Date', 'Heure', 'Code', 'Module', 'Crédits', 'Sem.', 
+                                  'Salle', 'Type', 'Professeur', 'Inscrits', 'Durée (min)']
+                        for c_idx, header in enumerate(headers, start=1):
+                            cell = ws_summary.cell(row=1, column=c_idx)
+                            cell.value = header
+                            cell.fill = header_fill
+                            cell.font = header_font
+                            cell.alignment = Alignment(horizontal='center', vertical='center')
+                            cell.border = border
+                        
+                        # Auto-adjust column widths in summary
+                        for column in ws_summary.columns:
+                            max_length = 0
+                            column_letter = get_column_letter(column[0].column)
+                            for cell in column:
+                                try:
+                                    if len(str(cell.value)) > max_length:
+                                        max_length = len(str(cell.value))
+                                except:
+                                    pass
+                            adjusted_width = min(max_length + 2, 50)
+                            ws_summary.column_dimensions[column_letter].width = adjusted_width
+                        
+                        wb.save(output)
                         output.seek(0)
+                        
                         st.download_button(
-                            label="📊 Exporter en Excel",
+                            label="📊 Exporter en Excel (Calendrier)",
                             data=output,
-                            file_name=f"planning_formation_{formation_id}_{periode_id_form}.xlsx",
+                            file_name=f"planning_calendrier_{formation_info['formation_niveau']}_{periode_id_form}.xlsx",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                 
