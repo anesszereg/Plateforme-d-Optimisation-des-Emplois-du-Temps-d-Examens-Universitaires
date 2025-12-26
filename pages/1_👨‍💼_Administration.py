@@ -85,7 +85,7 @@ def main():
             
             with col_btn1:
                 if st.button("🚀 Générer l'EDT", type="primary", use_container_width=True):
-                    with st.spinner("Génération en cours... Optimisé pour ~10 secondes"):
+                    with st.spinner("Génération en cours... Optimisé pour < 45 secondes"):
                         progress_bar = st.progress(0)
                         status_text = st.empty()
                         

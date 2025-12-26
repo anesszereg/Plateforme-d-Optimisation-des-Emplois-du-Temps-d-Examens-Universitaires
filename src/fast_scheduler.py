@@ -3,7 +3,7 @@ from typing import List, Dict, Tuple
 import random
 
 class FastScheduler:
-    """Ultra-fast scheduling algorithm optimized for <10 second execution"""
+    """Ultra-fast scheduling algorithm optimized for <45 second execution"""
     
     def __init__(self, db):
         self.db = db
@@ -46,19 +46,23 @@ class FastScheduler:
         prof_daily_count = {}  # {(prof_id, date): count}
         student_exams = {}  # {(student_id, date): count}
         
-        print("Loading enrollments...")
+        # OPTIMIZED: Load enrollments with minimal data transfer
+        print("Loading enrollments (optimized)...")
         enrollments = self.db.execute_query(
             "SELECT module_id, etudiant_id FROM inscriptions WHERE statut = 'inscrit'"
         )
-        module_students = {}
+        
+        # Pre-allocate dictionaries for better performance
+        module_students = {m['id']: set() for m in modules}
         student_modules = {}
+        
+        # Single-pass enrollment processing
         for enroll in enrollments:
             mid = enroll['module_id']
             sid = enroll['etudiant_id']
             
-            if mid not in module_students:
-                module_students[mid] = set()
-            module_students[mid].add(sid)
+            if mid in module_students:
+                module_students[mid].add(sid)
             
             if sid not in student_modules:
                 student_modules[sid] = set()
@@ -91,9 +95,9 @@ class FastScheduler:
                 failed_modules.append({'module': module['nom'], 'nb_inscrits': nb_inscrits})
                 continue
             
-            # Try to schedule in next available slot
+            # Try to schedule in next available slot - OPTIMIZED
             attempts = 0
-            max_attempts = min(100, total_slots * 2)
+            max_attempts = min(50, total_slots)  # Reduced attempts for faster execution
             
             while not scheduled and attempts < max_attempts:
                 slot_idx = (current_slot_index + attempts) % total_slots
@@ -110,7 +114,7 @@ class FastScheduler:
                     datetime.min.time().replace(hour=slot_hour, minute=slot_minute)
                 )
                 
-                # Try each suitable room for this time slot
+                # OPTIMIZED: Try each suitable room with early exit
                 suitable_room = None
                 exam_end_datetime = exam_datetime + timedelta(minutes=module['duree_examen'])
                 
@@ -118,16 +122,17 @@ class FastScheduler:
                     room_id = room['id']
                     # Check for time overlap with existing exams in this room
                     room_available = True
+                    
                     if room_id in room_schedule:
+                        # Early termination on first conflict
                         for existing_start, existing_end in room_schedule[room_id]:
-                            # Check if times overlap
                             if not (exam_end_datetime <= existing_start or exam_datetime >= existing_end):
                                 room_available = False
                                 break
                     
                     if room_available:
                         suitable_room = room
-                        break
+                        break  # Found a room, stop searching
                 
                 if not suitable_room:
                     attempts += 1
@@ -147,13 +152,14 @@ class FastScheduler:
                     attempts += 1
                     continue
                 
-                # Check student conflicts (fast) - max 1 exam per day
+                # Check student conflicts (fast) - max 1 exam per day with early termination
                 student_conflict = False
-                for student_id in students:
-                    student_key = (student_id, exam_date)
-                    if student_daily_exams.get(student_key, 0) >= 1:
-                        student_conflict = True
-                        break
+                if len(students) > 0:  # Only check if there are students
+                    for student_id in students:
+                        student_key = (student_id, exam_date)
+                        if student_daily_exams.get(student_key, 0) >= 1:
+                            student_conflict = True
+                            break
                 
                 if student_conflict:
                     attempts += 1
@@ -192,32 +198,86 @@ class FastScheduler:
             if not scheduled:
                 failed_modules.append({'module': module['nom'], 'nb_inscrits': nb_inscrits})
         
-        # Batch insert all exams
-        print(f"Inserting {len(exams_to_insert)} exams...")
+        # Batch insert all exams - OPTIMIZED for speed
+        print(f"Inserting {len(exams_to_insert)} exams in bulk...")
         exam_ids = []
-        for exam_data in exams_to_insert:
-            try:
-                exam_id = self.db.create_examen(
-                    exam_data['module_id'],
-                    exam_data['prof_id'],
-                    exam_data['salle_id'],
-                    exam_data['periode_id'],
-                    exam_data['date_heure'],
-                    exam_data['duree_minutes'],
-                    exam_data['nb_inscrits']
-                )
-                if exam_id:
-                    exam_ids.append((exam_id, exam_data['prof_id'], exam_data['module_id']))
-            except Exception as e:
-                print(f"Error inserting exam: {e}")
         
-        # Create surveillances (simplified)
-        print(f"Creating surveillances...")
-        for exam_id, prof_id, module_id in exam_ids:
+        if exams_to_insert:
+            # Bulk insert using executemany for maximum performance
+            exam_values = [
+                (
+                    exam['module_id'],
+                    exam['prof_id'],
+                    exam['salle_id'],
+                    exam['periode_id'],
+                    exam['date_heure'],
+                    exam['duree_minutes'],
+                    exam['nb_inscrits']
+                )
+                for exam in exams_to_insert
+            ]
+            
             try:
-                self.db.create_surveillance(exam_id, prof_id, 'responsable')
+                # Use RETURNING to get all exam IDs in one query
+                query = """
+                    INSERT INTO examens (module_id, prof_responsable_id, salle_id, periode_id, 
+                                        date_heure, duree_minutes, nb_inscrits)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id
+                """
+                
+                with self.db.get_cursor(dict_cursor=False) as cursor:
+                    cursor.executemany(query, exam_values)
+                    # Get all inserted exam IDs
+                    for idx, row in enumerate(cursor.fetchall()):
+                        exam_id = row[0]
+                        exam_ids.append((exam_id, exams_to_insert[idx]['prof_id'], exams_to_insert[idx]['module_id']))
+                
+                print(f"✓ Successfully inserted {len(exam_ids)} exams")
             except Exception as e:
-                print(f"Error creating surveillance: {e}")
+                print(f"Bulk insert failed, falling back to individual inserts: {e}")
+                # Fallback to individual inserts
+                for exam_data in exams_to_insert:
+                    try:
+                        exam_id = self.db.create_examen(
+                            exam_data['module_id'],
+                            exam_data['prof_id'],
+                            exam_data['salle_id'],
+                            exam_data['periode_id'],
+                            exam_data['date_heure'],
+                            exam_data['duree_minutes'],
+                            exam_data['nb_inscrits']
+                        )
+                        if exam_id:
+                            exam_ids.append((exam_id, exam_data['prof_id'], exam_data['module_id']))
+                    except Exception as e:
+                        print(f"Error inserting exam: {e}")
+        
+        # Bulk create surveillances - OPTIMIZED
+        print(f"Creating {len(exam_ids)} surveillances in bulk...")
+        if exam_ids:
+            surveillance_values = [
+                (exam_id, prof_id, 'responsable')
+                for exam_id, prof_id, module_id in exam_ids
+            ]
+            
+            try:
+                query = """
+                    INSERT INTO surveillances (examen_id, prof_id, role)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (examen_id, prof_id) DO NOTHING
+                """
+                with self.db.get_cursor(dict_cursor=False) as cursor:
+                    cursor.executemany(query, surveillance_values)
+                print(f"✓ Successfully created {len(surveillance_values)} surveillances")
+            except Exception as e:
+                print(f"Bulk surveillance insert failed, falling back: {e}")
+                # Fallback to individual inserts
+                for exam_id, prof_id, module_id in exam_ids:
+                    try:
+                        self.db.create_surveillance(exam_id, prof_id, 'responsable')
+                    except Exception as e:
+                        print(f"Error creating surveillance: {e}")
         
         end_time = datetime.now()
         execution_time = (end_time - start_time).total_seconds()
