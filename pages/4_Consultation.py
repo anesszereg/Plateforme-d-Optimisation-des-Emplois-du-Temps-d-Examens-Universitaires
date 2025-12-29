@@ -12,7 +12,7 @@ from src.database import Database
 
 st.set_page_config(
     page_title="Consultation - Planning Personnel",
-    page_icon="👤",
+    page_icon="",
     layout="wide"
 )
 
@@ -21,31 +21,31 @@ def get_database():
     return Database()
 
 def main():
-    st.title("👤 Consultation de Planning Personnel")
+    st.title(" Consultation de Planning Personnel")
     st.markdown("Consultez votre emploi du temps d'examens personnalisé")
     
     db = get_database()
     
     user_type = st.radio(
         "Je suis:",
-        ["👨‍🎓 Étudiant", "👨‍🏫 Professeur"],
+        ["‍ Étudiant", "‍ Professeur"],
         horizontal=True
     )
     
     st.markdown("---")
     
-    if user_type == "👨‍🎓 Étudiant":
+    if user_type == "‍ Étudiant":
         show_student_view(db)
     else:
         show_professor_view(db)
 
 def show_student_view(db):
-    st.header("👨‍🎓 Planning Étudiant")
+    st.header("‍ Planning Étudiant")
     
     col_search1, col_search2 = st.columns(2)
     
     with col_search1:
-        search_name = st.text_input("🔍 Rechercher par nom")
+        search_name = st.text_input(" Rechercher par nom")
     
     with col_search2:
         departements = db.get_departements()
@@ -67,7 +67,7 @@ def show_student_view(db):
             etudiants = db.execute_query(query, (f"%{search_name}%", f"%{search_name}%"))
         
         if etudiants:
-            st.success(f"✅ {len(etudiants)} étudiant(s) trouvé(s)")
+            st.success(f" {len(etudiants)} étudiant(s) trouvé(s)")
             
             etudiant_options = {
                 f"{e['nom']} {e['prenom']} - {e['formation']}": e['id']
@@ -114,7 +114,7 @@ def show_student_view(db):
                 planning = db.get_planning_etudiant(etudiant_id, periode_id)
                 
                 if planning:
-                    st.success(f"📅 Vous avez {len(planning)} examen(s) planifié(s)")
+                    st.success(f" Vous avez {len(planning)} examen(s) planifié(s)")
                     
                     planning_df = pd.DataFrame(planning)
                     planning_df['date'] = pd.to_datetime(planning_df['date_heure']).dt.date
@@ -145,10 +145,10 @@ def show_student_view(db):
                     
                     st.markdown("---")
                     
-                    st.subheader("📋 Détail de votre Planning")
+                    st.subheader(" Détail de votre Planning")
                     
                     for date in sorted(planning_df['date'].unique()):
-                        st.markdown(f"### 📅 {date.strftime('%A %d %B %Y')}")
+                        st.markdown(f"###  {date.strftime('%A %d %B %Y')}")
                         
                         day_exams = planning_df[planning_df['date'] == date]
                         
@@ -157,22 +157,22 @@ def show_student_view(db):
                                 col_e1, col_e2, col_e3, col_e4 = st.columns([2, 2, 2, 1])
                                 
                                 with col_e1:
-                                    st.markdown(f"**🕐 {exam['heure']}**")
+                                    st.markdown(f"** {exam['heure']}**")
                                 
                                 with col_e2:
-                                    st.markdown(f"**📚 {exam['module']}**")
+                                    st.markdown(f"** {exam['module']}**")
                                     st.caption(exam['code_module'])
                                 
                                 with col_e3:
-                                    st.markdown(f"**🏫 {exam['salle']}**")
+                                    st.markdown(f"** {exam['salle']}**")
                                     st.caption(exam['batiment'])
                                 
                                 with col_e4:
-                                    st.markdown(f"**⏱️ {exam['duree_minutes']} min**")
+                                    st.markdown(f"**⏱ {exam['duree_minutes']} min**")
                                 
                                 st.markdown("---")
                     
-                    if st.button("📥 Télécharger mon planning (CSV)"):
+                    if st.button(" Télécharger mon planning (CSV)"):
                         csv = planning_df.to_csv(index=False, encoding='utf-8')
                         st.download_button(
                             label="Télécharger",
@@ -181,21 +181,21 @@ def show_student_view(db):
                             mime="text/csv"
                         )
                 else:
-                    st.info("📭 Aucun examen planifié pour cette période")
+                    st.info(" Aucun examen planifié pour cette période")
             else:
                 st.warning("Aucune période d'examen active")
         else:
             st.warning("Aucun étudiant trouvé avec ce nom")
     else:
-        st.info("👆 Entrez votre nom pour rechercher votre planning")
+        st.info(" Entrez votre nom pour rechercher votre planning")
 
 def show_professor_view(db):
-    st.header("👨‍🏫 Planning Professeur")
+    st.header("‍ Planning Professeur")
     
     col_search1, col_search2 = st.columns(2)
     
     with col_search1:
-        search_name = st.text_input("🔍 Rechercher par nom")
+        search_name = st.text_input(" Rechercher par nom")
     
     with col_search2:
         departements = db.get_departements()
@@ -216,7 +216,7 @@ def show_professor_view(db):
             professeurs = db.execute_query(query, (f"%{search_name}%", f"%{search_name}%"))
         
         if professeurs:
-            st.success(f"✅ {len(professeurs)} professeur(s) trouvé(s)")
+            st.success(f" {len(professeurs)} professeur(s) trouvé(s)")
             
             prof_options = {
                 f"{p['nom']} {p['prenom']} - {p['grade']} ({p['departement']})": p['id']
@@ -263,7 +263,7 @@ def show_professor_view(db):
                 planning = db.get_planning_professeur(prof_id, periode_id)
                 
                 if planning:
-                    st.success(f"📅 Vous avez {len(planning)} surveillance(s) planifiée(s)")
+                    st.success(f" Vous avez {len(planning)} surveillance(s) planifiée(s)")
                     
                     planning_df = pd.DataFrame(planning)
                     planning_df['date'] = pd.to_datetime(planning_df['date_heure']).dt.date
@@ -314,10 +314,10 @@ def show_professor_view(db):
                     
                     st.markdown("---")
                     
-                    st.subheader("📋 Détail de votre Planning")
+                    st.subheader(" Détail de votre Planning")
                     
                     for date in sorted(planning_df['date'].unique()):
-                        st.markdown(f"### 📅 {date.strftime('%A %d %B %Y')}")
+                        st.markdown(f"###  {date.strftime('%A %d %B %Y')}")
                         
                         day_surv = planning_df[planning_df['date'] == date]
                         
@@ -326,26 +326,26 @@ def show_professor_view(db):
                                 col_s1, col_s2, col_s3, col_s4, col_s5 = st.columns([1, 2, 2, 1, 1])
                                 
                                 with col_s1:
-                                    st.markdown(f"**🕐 {surv['heure']}**")
+                                    st.markdown(f"** {surv['heure']}**")
                                 
                                 with col_s2:
-                                    st.markdown(f"**📚 {surv['module']}**")
+                                    st.markdown(f"** {surv['module']}**")
                                 
                                 with col_s3:
-                                    st.markdown(f"**🏫 {surv['salle']}**")
+                                    st.markdown(f"** {surv['salle']}**")
                                     st.caption(surv['batiment'])
                                 
                                 with col_s4:
-                                    role_emoji = "👔" if surv['role'] == 'responsable' else "👁️"
+                                    role_emoji = "" if surv['role'] == 'responsable' else ""
                                     st.markdown(f"**{role_emoji} {surv['role'].title()}**")
                                 
                                 with col_s5:
-                                    st.markdown(f"**👥 {surv['nb_etudiants']}**")
+                                    st.markdown(f"** {surv['nb_etudiants']}**")
                                     st.caption(f"{surv['duree_minutes']} min")
                                 
                                 st.markdown("---")
                     
-                    if st.button("📥 Télécharger mon planning (CSV)"):
+                    if st.button(" Télécharger mon planning (CSV)"):
                         csv = planning_df.to_csv(index=False, encoding='utf-8')
                         st.download_button(
                             label="Télécharger",
@@ -354,13 +354,13 @@ def show_professor_view(db):
                             mime="text/csv"
                         )
                 else:
-                    st.info("📭 Aucune surveillance planifiée pour cette période")
+                    st.info(" Aucune surveillance planifiée pour cette période")
             else:
                 st.warning("Aucune période d'examen active")
         else:
             st.warning("Aucun professeur trouvé avec ce nom")
     else:
-        st.info("👆 Entrez votre nom pour rechercher votre planning")
+        st.info(" Entrez votre nom pour rechercher votre planning")
 
 if __name__ == "__main__":
     main()

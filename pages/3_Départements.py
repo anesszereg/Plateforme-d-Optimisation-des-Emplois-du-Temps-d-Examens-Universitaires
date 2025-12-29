@@ -12,7 +12,7 @@ from src.analytics import Analytics
 
 st.set_page_config(
     page_title="Départements - Gestion",
-    page_icon="🏛️",
+    page_icon="",
     layout="wide"
 )
 
@@ -25,7 +25,7 @@ def get_analytics(_db):
     return Analytics(_db)
 
 def main():
-    st.title("🏛️ Gestion Départementale")
+    st.title(" Gestion Départementale")
     st.markdown("Vue et validation par Chef de Département")
     
     db = get_database()
@@ -46,10 +46,10 @@ def main():
     
     dept_id = dept_options[selected_dept_name]
     
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Vue d'ensemble", "📚 Formations", "👨‍🏫 Professeurs", "📅 Examens"])
+    tab1, tab2, tab3, tab4 = st.tabs([" Vue d'ensemble", " Formations", "‍ Professeurs", " Examens"])
     
     with tab1:
-        st.header(f"📊 Vue d'ensemble - {selected_dept_name}")
+        st.header(f" Vue d'ensemble - {selected_dept_name}")
         
         try:
             dept_stats = analytics.get_department_stats()
@@ -58,31 +58,31 @@ def main():
             col1, col2, col3, col4 = st.columns(4)
             
             with col1:
-                st.metric("👨‍🎓 Étudiants", f"{dept_data['nb_etudiants']:,}")
+                st.metric("‍ Étudiants", f"{dept_data['nb_etudiants']:,}")
             
             with col2:
-                st.metric("👨‍🏫 Professeurs", f"{dept_data['nb_professeurs']:,}")
+                st.metric("‍ Professeurs", f"{dept_data['nb_professeurs']:,}")
             
             with col3:
-                st.metric("📚 Formations", dept_data['nb_formations'])
+                st.metric(" Formations", dept_data['nb_formations'])
             
             with col4:
-                st.metric("📖 Modules", dept_data['nb_modules'])
+                st.metric(" Modules", dept_data['nb_modules'])
             
             st.markdown("---")
             
             col5, col6 = st.columns(2)
             
             with col5:
-                st.metric("📝 Examens planifiés", dept_data['nb_examens_planifies'])
+                st.metric(" Examens planifiés", dept_data['nb_examens_planifies'])
             
             with col6:
                 ratio = dept_data['nb_etudiants'] / max(dept_data['nb_professeurs'], 1)
-                st.metric("📊 Ratio Étudiants/Prof", f"{ratio:.1f}")
+                st.metric(" Ratio Étudiants/Prof", f"{ratio:.1f}")
             
             st.markdown("---")
             
-            st.subheader("📈 Statistiques Détaillées")
+            st.subheader(" Statistiques Détaillées")
             
             formations = db.get_formations(dept_id)
             
@@ -119,13 +119,13 @@ def main():
             st.error(f"Erreur: {e}")
     
     with tab2:
-        st.header("📚 Formations du Département")
+        st.header(" Formations du Département")
         
         formations = db.get_formations(dept_id)
         
         if formations:
             for formation in formations:
-                with st.expander(f"📖 {formation['nom']} ({formation['code']})"):
+                with st.expander(f" {formation['nom']} ({formation['code']})"):
                     col_f1, col_f2, col_f3 = st.columns(3)
                     
                     with col_f1:
@@ -151,7 +151,7 @@ def main():
             st.info("Aucune formation trouvée pour ce département")
     
     with tab3:
-        st.header("👨‍🏫 Professeurs du Département")
+        st.header("‍ Professeurs du Département")
         
         professeurs = db.get_professeurs(dept_id)
         
@@ -188,7 +188,7 @@ def main():
             
             st.markdown("---")
             
-            search = st.text_input("🔍 Rechercher un professeur")
+            search = st.text_input(" Rechercher un professeur")
             
             if search:
                 profs_df = profs_df[
@@ -205,7 +205,7 @@ def main():
             st.info("Aucun professeur trouvé pour ce département")
     
     with tab4:
-        st.header("📅 Examens du Département")
+        st.header(" Examens du Département")
         
         periodes = db.get_periodes_examen(actif=True)
         
@@ -268,7 +268,7 @@ def main():
                     
                     st.markdown("---")
                     
-                    st.subheader("📋 Liste des Examens")
+                    st.subheader(" Liste des Examens")
                     
                     st.dataframe(
                         dept_examens[['date_heure', 'module_nom', 'salle_nom', 'professeur', 'nb_inscrits', 'duree_minutes']],
@@ -276,8 +276,8 @@ def main():
                         hide_index=True
                     )
                     
-                    if st.button("✅ Valider le planning du département"):
-                        st.success("✅ Planning validé pour le département " + selected_dept_name)
+                    if st.button(" Valider le planning du département"):
+                        st.success(" Planning validé pour le département " + selected_dept_name)
                         st.balloons()
                 else:
                     st.info("Aucun examen planifié pour ce département")

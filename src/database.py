@@ -266,3 +266,25 @@ class Database:
             ORDER BY d.nom, f.niveau, f.nom
         """
         return self.execute_query(query, (periode_id,))
+    
+    def get_all_planning_by_professors(self, periode_id):
+        """Get exam planning grouped by all professors"""
+        query = """
+            SELECT 
+                p.id as professeur_id,
+                p.nom || ' ' || p.prenom as professeur_nom,
+                p.grade as professeur_grade,
+                d.nom as departement_nom,
+                COUNT(DISTINCT s.examen_id) as nb_surveillances,
+                COUNT(DISTINCT CASE WHEN s.role = 'responsable' THEN s.examen_id END) as nb_responsable,
+                MIN(e.date_heure) as premier_examen,
+                MAX(e.date_heure) as dernier_examen
+            FROM professeurs p
+            JOIN departements d ON p.dept_id = d.id
+            LEFT JOIN surveillances s ON s.prof_id = p.id
+            LEFT JOIN examens e ON e.id = s.examen_id AND e.periode_id = %s
+            GROUP BY p.id, p.nom, p.prenom, p.grade, d.nom
+            HAVING COUNT(s.examen_id) > 0
+            ORDER BY d.nom, p.nom, p.prenom
+        """
+        return self.execute_query(query, (periode_id,))

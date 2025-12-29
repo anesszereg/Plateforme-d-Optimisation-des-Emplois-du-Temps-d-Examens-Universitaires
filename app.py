@@ -14,7 +14,7 @@ from src.scheduler import ExamScheduler
 
 st.set_page_config(
     page_title="Plateforme d'Optimisation des Examens",
-    page_icon="🎓",
+    page_icon="📄",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -71,13 +71,13 @@ def get_scheduler(_db):
     return ExamScheduler(_db)
 
 def main():
-    st.markdown('<div class="main-header">🎓 Plateforme d\'Optimisation des Emplois du Temps d\'Examens</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">Plateforme d\'Optimisation des Emplois du Temps d\'Examens</div>', unsafe_allow_html=True)
     
     # Check database connection
     db = get_database()
     
     if db is None:
-        st.error("🔴 **Database Connection Failed**")
+        st.error("**Database Connection Failed**")
         st.warning("""
         ### Database Not Configured
         
@@ -104,7 +104,7 @@ def main():
         After configuring secrets, reboot your app.
         """)
         
-        with st.expander("📖 Detailed Setup Instructions"):
+        with st.expander("Detailed Setup Instructions"):
             st.markdown("""
             ### Step 1: Create a Database
             
@@ -139,11 +139,11 @@ def main():
     
     analytics = get_analytics(db)
     
-    st.sidebar.title("📋 Navigation")
+    st.sidebar.title("Navigation")
     st.sidebar.info("Utilisez les pages dans le menu pour accéder aux différentes fonctionnalités")
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 👥 Rôles disponibles")
+    st.sidebar.markdown("### Rôles disponibles")
     st.sidebar.markdown("""
     - **Administration** : Génération d'EDT
     - **Statistiques** : Vue stratégique
@@ -151,7 +151,7 @@ def main():
     - **Consultation** : Planning personnel
     """)
     
-    st.header("📊 Tableau de Bord Global")
+    st.header("Tableau de Bord Global")
     
     try:
         kpis = analytics.get_dashboard_kpis()
@@ -160,28 +160,28 @@ def main():
         
         with col1:
             st.metric(
-                label="👨‍🎓 Étudiants",
+                label="Étudiants",
                 value=f"{kpis.get('total_etudiants', 0):,}",
                 delta="Total inscrits"
             )
         
         with col2:
             st.metric(
-                label="👨‍🏫 Professeurs",
+                label="Professeurs",
                 value=f"{kpis.get('total_professeurs', 0):,}",
                 delta="Corps enseignant"
             )
         
         with col3:
             st.metric(
-                label="📚 Modules",
+                label="Modules",
                 value=f"{kpis.get('total_modules', 0):,}",
                 delta="Enseignements"
             )
         
         with col4:
             st.metric(
-                label="📝 Inscriptions",
+                label="Inscriptions",
                 value=f"{kpis.get('total_inscriptions', 0):,}",
                 delta="Total"
             )
@@ -192,31 +192,31 @@ def main():
         
         with col5:
             st.metric(
-                label="🏛️ Départements",
+                label="Départements",
                 value=kpis.get('total_departements', 0)
             )
         
         with col6:
             st.metric(
-                label="🎯 Formations",
+                label="Formations",
                 value=kpis.get('total_formations', 0)
             )
         
         with col7:
             st.metric(
-                label="🏫 Salles",
+                label="Salles",
                 value=kpis.get('total_salles', 0)
             )
         
         with col8:
             st.metric(
-                label="💺 Capacité totale",
+                label="Capacité totale",
                 value=f"{kpis.get('capacite_totale', 0):,}"
             )
         
         st.markdown("---")
         
-        st.subheader("📈 Statistiques par Département")
+        st.subheader("Statistiques par Département")
         
         dept_stats = analytics.get_department_stats()
         
@@ -259,7 +259,7 @@ def main():
         
         st.markdown("---")
         
-        st.subheader("🔍 Détection de Conflits")
+        st.subheader("Détection de Conflits")
         
         conflict_summary = analytics.get_conflict_summary()
         
@@ -267,41 +267,41 @@ def main():
         
         with col_c1:
             st.metric(
-                label="⚠️ Conflits Étudiants",
+                label="Conflits Étudiants",
                 value=conflict_summary.get('etudiants', 0),
                 delta="Examens multiples/jour"
             )
         
         with col_c2:
             st.metric(
-                label="⚠️ Conflits Professeurs",
+                label="Conflits Professeurs",
                 value=conflict_summary.get('professeurs', 0),
                 delta=">3 examens/jour"
             )
         
         with col_c3:
             st.metric(
-                label="⚠️ Conflits Capacité",
+                label="Conflits Capacité",
                 value=conflict_summary.get('capacite', 0),
                 delta="Salles surchargées"
             )
         
         with col_c4:
             st.metric(
-                label="⚠️ Conflits Salles",
+                label="Conflits Salles",
                 value=conflict_summary.get('salles', 0),
                 delta="Chevauchements"
             )
         
         total_conflicts = sum(conflict_summary.values())
         if total_conflicts == 0:
-            st.success("✅ Aucun conflit détecté dans le planning actuel!")
+            st.success("Aucun conflit détecté dans le planning actuel!")
         else:
-            st.warning(f"⚠️ {total_conflicts} conflit(s) détecté(s). Consultez la page Administration pour plus de détails.")
+            st.warning(f"{total_conflicts} conflit(s) détecté(s). Consultez la page Administration pour plus de détails.")
         
     except Exception as e:
-        st.error(f"❌ Erreur lors du chargement des données: {e}")
-        st.info("💡 Assurez-vous que la base de données est initialisée et contient des données.")
+        st.error(f"Erreur lors du chargement des données: {e}")
+        st.info("Assurez-vous que la base de données est initialisée et contient des données.")
         st.code("""
 # Pour initialiser la base de données:
 python scripts/init_database.py
@@ -311,7 +311,7 @@ python scripts/generate_data.py
         """)
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### ℹ️ À propos")
+    st.sidebar.markdown("### À propos")
     st.sidebar.info("""
     **Version**: 1.0.0
     

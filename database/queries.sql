@@ -186,22 +186,22 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION get_planning_professeur(p_prof_id INTEGER, p_periode_id INTEGER)
 RETURNS TABLE (
     date_heure TIMESTAMP,
-    module TEXT,
-    salle TEXT,
+    module_nom TEXT,
+    salle_nom TEXT,
     batiment TEXT,
     duree_minutes INTEGER,
-    nb_etudiants INTEGER,
+    nb_inscrits INTEGER,
     role TEXT
 ) AS $$
 BEGIN
     RETURN QUERY
     SELECT 
         ex.date_heure,
-        m.nom::TEXT as module,
-        l.nom::TEXT as salle,
+        m.nom::TEXT as module_nom,
+        l.nom::TEXT as salle_nom,
         l.batiment::TEXT,
         ex.duree_minutes,
-        ex.nb_inscrits as nb_etudiants,
+        ex.nb_inscrits,
         s.role::TEXT
     FROM surveillances s
     JOIN examens ex ON s.examen_id = ex.id

@@ -14,7 +14,7 @@ from src.analytics import Analytics
 
 st.set_page_config(
     page_title="Administration - Génération d'EDT",
-    page_icon="👨‍💼",
+    page_icon="‍",
     layout="wide"
 )
 
@@ -31,22 +31,22 @@ def get_analytics(_db):
     return Analytics(_db)
 
 def main():
-    st.title("👨‍💼 Administration des Examens")
+    st.title("‍ Administration des Examens")
     st.markdown("Génération automatique et optimisation des emplois du temps d'examens")
     
     db = get_database()
     scheduler = get_scheduler(db)
     analytics = get_analytics(db)
     
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🚀 Génération d'EDT", "🔍 Détection de Conflits", "📋 Examens Planifiés", "🏛️ Planning par Département", "🎓 Planning par Formation"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([" Génération d'EDT", " Détection de Conflits", " Examens Planifiés", " Planning par Département", " Planning par Formation", " Planning par Professeur"])
     
     with tab1:
-        st.header("🚀 Génération Automatique d'Emploi du Temps")
+        st.header(" Génération Automatique d'Emploi du Temps")
         
         periodes = db.get_periodes_examen(actif=True)
         
         if not periodes:
-            st.warning("⚠️ Aucune période d'examen active trouvée")
+            st.warning(" Aucune période d'examen active trouvée")
             st.info("Créez une période d'examen dans la base de données pour continuer")
         else:
             periode_options = {
@@ -66,11 +66,11 @@ def main():
             with col1:
                 st.info("""
                 **Contraintes appliquées:**
-                - ✅ Maximum 1 examen par jour par étudiant
-                - ✅ Maximum 3 examens par jour par professeur
-                - ✅ Respect de la capacité des salles (20 étudiants max)
-                - ✅ Pas de chevauchement de salles
-                - ✅ Priorité aux professeurs du département
+                -  Maximum 1 examen par jour par étudiant
+                -  Maximum 3 examens par jour par professeur
+                -  Respect de la capacité des salles (20 étudiants max)
+                -  Pas de chevauchement de salles
+                -  Priorité aux professeurs du département
                 """)
             
             with col2:
@@ -84,7 +84,7 @@ def main():
             col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 2])
             
             with col_btn1:
-                if st.button("🚀 Générer l'EDT", type="primary", use_container_width=True):
+                if st.button(" Générer l'EDT", type="primary", use_container_width=True):
                     with st.spinner("Génération en cours... Optimisé pour < 45 secondes"):
                         progress_bar = st.progress(0)
                         status_text = st.empty()
@@ -107,7 +107,7 @@ def main():
                                 progress_bar.progress(100)
                                 status_text.text("Terminé!")
                                 
-                                st.success(f"✅ EDT généré avec succès en {result['execution_time']:.2f} secondes!")
+                                st.success(f" EDT généré avec succès en {result['execution_time']:.2f} secondes!")
                                 
                                 col_r1, col_r2, col_r3 = st.columns(3)
                                 
@@ -121,43 +121,43 @@ def main():
                                     st.metric("Conflits détectés", result['total_conflicts'])
                                 
                                 if result['failed'] > 0:
-                                    st.warning("⚠️ Certains modules n'ont pas pu être planifiés:")
+                                    st.warning(" Certains modules n'ont pas pu être planifiés:")
                                     failed_df = pd.DataFrame(result['failed_modules'])
                                     st.dataframe(failed_df, use_container_width=True)
                                 
                                 if result['total_conflicts'] > 0:
-                                    st.error(f"❌ {result['total_conflicts']} conflit(s) détecté(s). Consultez l'onglet 'Détection de Conflits'")
+                                    st.error(f" {result['total_conflicts']} conflit(s) détecté(s). Consultez l'onglet 'Détection de Conflits'")
                                 
                                 st.balloons()
                             else:
-                                st.error(f"❌ Erreur lors de la génération: {result.get('error', 'Erreur inconnue')}")
+                                st.error(f" Erreur lors de la génération: {result.get('error', 'Erreur inconnue')}")
                         
                         except Exception as e:
-                            st.error(f"❌ Erreur: {e}")
+                            st.error(f" Erreur: {e}")
                             import traceback
                             st.code(traceback.format_exc())
             
             with col_btn2:
-                if st.button("🔄 Optimiser l'EDT", use_container_width=True):
+                if st.button(" Optimiser l'EDT", use_container_width=True):
                     with st.spinner("Optimisation en cours..."):
                         try:
                             optimizations = scheduler.optimize_schedule(periode_id)
-                            st.success(f"✅ {optimizations} optimisation(s) effectuée(s)")
+                            st.success(f" {optimizations} optimisation(s) effectuée(s)")
                         except Exception as e:
-                            st.error(f"❌ Erreur: {e}")
+                            st.error(f" Erreur: {e}")
             
             with col_btn3:
-                if st.button("🗑️ Supprimer tous les examens", use_container_width=True):
+                if st.button(" Supprimer tous les examens", use_container_width=True):
                     if st.checkbox("Confirmer la suppression"):
                         try:
                             db.delete_all_examens(periode_id)
-                            st.success("✅ Tous les examens ont été supprimés")
+                            st.success(" Tous les examens ont été supprimés")
                             st.rerun()
                         except Exception as e:
-                            st.error(f"❌ Erreur: {e}")
+                            st.error(f" Erreur: {e}")
     
     with tab2:
-        st.header("🔍 Détection de Conflits")
+        st.header(" Détection de Conflits")
         
         conflict_types = st.multiselect(
             "Types de conflits à afficher",
@@ -166,43 +166,43 @@ def main():
         )
         
         if "Étudiants" in conflict_types:
-            st.subheader("⚠️ Conflits Étudiants (>1 examen/jour)")
+            st.subheader(" Conflits Étudiants (>1 examen/jour)")
             conflits_etudiants = db.get_conflits_etudiants()
             if conflits_etudiants:
                 df = pd.DataFrame(conflits_etudiants)
                 st.dataframe(df, use_container_width=True, hide_index=True)
             else:
-                st.success("✅ Aucun conflit étudiant détecté")
+                st.success(" Aucun conflit étudiant détecté")
         
         if "Professeurs" in conflict_types:
-            st.subheader("⚠️ Conflits Professeurs (>3 examens/jour)")
+            st.subheader(" Conflits Professeurs (>3 examens/jour)")
             conflits_profs = db.get_conflits_professeurs()
             if conflits_profs:
                 df = pd.DataFrame(conflits_profs)
                 st.dataframe(df, use_container_width=True, hide_index=True)
             else:
-                st.success("✅ Aucun conflit professeur détecté")
+                st.success(" Aucun conflit professeur détecté")
         
         if "Capacité" in conflict_types:
-            st.subheader("⚠️ Conflits de Capacité")
+            st.subheader(" Conflits de Capacité")
             conflits_capacite = db.get_conflits_capacite()
             if conflits_capacite:
                 df = pd.DataFrame(conflits_capacite)
                 st.dataframe(df, use_container_width=True, hide_index=True)
             else:
-                st.success("✅ Aucun conflit de capacité détecté")
+                st.success(" Aucun conflit de capacité détecté")
         
         if "Salles" in conflict_types:
-            st.subheader("⚠️ Conflits de Salles (chevauchements)")
+            st.subheader(" Conflits de Salles (chevauchements)")
             conflits_salles = db.get_conflits_salles()
             if conflits_salles:
                 df = pd.DataFrame(conflits_salles)
                 st.dataframe(df, use_container_width=True, hide_index=True)
             else:
-                st.success("✅ Aucun conflit de salle détecté")
+                st.success(" Aucun conflit de salle détecté")
     
     with tab3:
-        st.header("📋 Examens Planifiés")
+        st.header(" Examens Planifiés")
         
         periodes = db.get_periodes_examen(actif=True)
         
@@ -230,10 +230,10 @@ def main():
                 col_filter1, col_filter2 = st.columns(2)
                 
                 with col_filter1:
-                    search_module = st.text_input("🔍 Rechercher un module")
+                    search_module = st.text_input(" Rechercher un module")
                 
                 with col_filter2:
-                    search_salle = st.text_input("🔍 Rechercher une salle")
+                    search_salle = st.text_input(" Rechercher une salle")
                 
                 if search_module:
                     df = df[df['module_nom'].str.contains(search_module, case=False, na=False)]
@@ -247,7 +247,7 @@ def main():
                     hide_index=True
                 )
                 
-                if st.button("📥 Exporter en CSV"):
+                if st.button(" Exporter en CSV"):
                     csv = df.to_csv(index=False, encoding='utf-8')
                     st.download_button(
                         label="Télécharger le CSV",
@@ -259,7 +259,7 @@ def main():
                 st.info("Aucun examen planifié pour cette période")
     
     with tab4:
-        st.header("🏛️ Planning par Département")
+        st.header(" Planning par Département")
         
         periodes = db.get_periodes_examen(actif=True)
         
@@ -348,7 +348,7 @@ def main():
                         if display_format == "Par Département et Date":
                             # Group by department
                             for dept_name in sorted(df_dept['departement'].unique()):
-                                with st.expander(f"🏛️ {dept_name}", expanded=(selected_dept != "Tous les départements")):
+                                with st.expander(f" {dept_name}", expanded=(selected_dept != "Tous les départements")):
                                     dept_exams = df_dept[df_dept['departement'] == dept_name]
                                     
                                     st.markdown(f"**{len(dept_exams)} examens planifiés**")
@@ -358,7 +358,7 @@ def main():
                                     dept_exams['heure'] = pd.to_datetime(dept_exams['date_heure']).dt.strftime('%H:%M')
                                     
                                     for date in sorted(dept_exams['date'].unique()):
-                                        st.markdown(f"### 📅 {date.strftime('%A %d %B %Y')}")
+                                        st.markdown(f"###  {date.strftime('%A %d %B %Y')}")
                                         
                                         date_exams = dept_exams[dept_exams['date'] == date].sort_values('heure')
                                         
@@ -371,8 +371,8 @@ def main():
                                             
                                             with col_info:
                                                 st.markdown(f"**{exam['module_nom']}** ({exam['module_code']})")
-                                                st.markdown(f"📍 {exam['salle_nom']} - {exam['batiment']} | 👨‍🏫 {exam['professeur']} | 👥 {exam['nb_inscrits']} étudiants")
-                                                st.markdown(f"🎓 Formation: {exam['formation']}")
+                                                st.markdown(f" {exam['salle_nom']} - {exam['batiment']} | ‍ {exam['professeur']} |  {exam['nb_inscrits']} étudiants")
+                                                st.markdown(f" Formation: {exam['formation']}")
                                         
                                         st.markdown("---")
                         
@@ -382,7 +382,7 @@ def main():
                             df_dept['heure'] = pd.to_datetime(df_dept['date_heure']).dt.strftime('%H:%M')
                             
                             for date in sorted(df_dept['date'].unique()):
-                                st.markdown(f"## 📅 {date.strftime('%A %d %B %Y')}")
+                                st.markdown(f"##  {date.strftime('%A %d %B %Y')}")
                                 
                                 date_exams = df_dept[df_dept['date'] == date].sort_values('heure')
                                 
@@ -401,11 +401,11 @@ def main():
                                             st.markdown(f"""
                                             <div style="border: 2px solid #1f77b4; border-radius: 10px; padding: 15px; margin-bottom: 10px; background-color: #f0f8ff;">
                                                 <h4 style="margin: 0; color: #1f77b4;">{exam['module_nom']}</h4>
-                                                <p style="margin: 5px 0;"><strong>🏛️</strong> {exam['departement']}</p>
-                                                <p style="margin: 5px 0;"><strong>📍</strong> {exam['salle_nom']} ({exam['batiment']})</p>
-                                                <p style="margin: 5px 0;"><strong>👨‍🏫</strong> {exam['professeur']}</p>
-                                                <p style="margin: 5px 0;"><strong>👥</strong> {exam['nb_inscrits']} étudiants</p>
-                                                <p style="margin: 5px 0;"><strong>⏱️</strong> {exam['duree_minutes']} minutes</p>
+                                                <p style="margin: 5px 0;"><strong></strong> {exam['departement']}</p>
+                                                <p style="margin: 5px 0;"><strong></strong> {exam['salle_nom']} ({exam['batiment']})</p>
+                                                <p style="margin: 5px 0;"><strong>‍</strong> {exam['professeur']}</p>
+                                                <p style="margin: 5px 0;"><strong></strong> {exam['nb_inscrits']} étudiants</p>
+                                                <p style="margin: 5px 0;"><strong>⏱</strong> {exam['duree_minutes']} minutes</p>
                                             </div>
                                             """, unsafe_allow_html=True)
                                 
@@ -424,7 +424,7 @@ def main():
                         col_exp1, col_exp2 = st.columns(2)
                         
                         with col_exp1:
-                            if st.button("📥 Exporter en CSV", key="export_csv_dept"):
+                            if st.button(" Exporter en CSV", key="export_csv_dept"):
                                 csv = df_dept.to_csv(index=False, encoding='utf-8')
                                 st.download_button(
                                     label="Télécharger le CSV",
@@ -435,7 +435,7 @@ def main():
                                 )
                         
                         with col_exp2:
-                            if st.button("📊 Exporter en Excel", key="export_excel_dept"):
+                            if st.button(" Exporter en Excel", key="export_excel_dept"):
                                 import io
                                 output = io.BytesIO()
                                 with pd.ExcelWriter(output, engine='openpyxl') as writer:
@@ -458,7 +458,7 @@ def main():
             st.warning("Aucune période d'examen active")
     
     with tab5:
-        st.header("🎓 Planning par Formation")
+        st.header(" Planning par Formation")
         
         periodes = db.get_periodes_examen(actif=True)
         
@@ -480,7 +480,7 @@ def main():
             formations_summary = db.get_all_planning_by_formations(periode_id_form)
             
             if formations_summary:
-                st.subheader("📊 Vue d'ensemble des formations")
+                st.subheader(" Vue d'ensemble des formations")
                 
                 # Summary metrics
                 col_m1, col_m2, col_m3 = st.columns(3)
@@ -512,7 +512,7 @@ def main():
                 planning = db.get_planning_by_formation(formation_id, periode_id_form)
                 
                 if planning:
-                    st.success(f"✅ {len(planning)} examen(s) planifié(s) pour cette formation")
+                    st.success(f" {len(planning)} examen(s) planifié(s) pour cette formation")
                     
                     # Formation info
                     formation_info = planning[0]
@@ -530,7 +530,7 @@ def main():
                     # Display options
                     view_mode = st.radio(
                         "Mode d'affichage",
-                        ["📅 Calendrier", "📋 Liste Détaillée", "📊 Tableau"],
+                        [" Calendrier", " Liste Détaillée", " Tableau"],
                         horizontal=True,
                         key="view_mode_formation"
                     )
@@ -540,14 +540,14 @@ def main():
                     df_planning['heure'] = pd.to_datetime(df_planning['date_heure']).dt.strftime('%H:%M')
                     df_planning['date_str'] = pd.to_datetime(df_planning['date_heure']).dt.strftime('%d/%m/%Y')
                     
-                    if view_mode == "📅 Calendrier":
+                    if view_mode == " Calendrier":
                         # Group by date
                         dates = sorted(df_planning['date'].unique())
                         
                         for date in dates:
                             exams_on_date = df_planning[df_planning['date'] == date].sort_values('heure')
                             
-                            st.markdown(f"### 📅 {date.strftime('%A %d %B %Y')}")
+                            st.markdown(f"###  {date.strftime('%A %d %B %Y')}")
                             
                             for idx, exam in exams_on_date.iterrows():
                                 with st.container():
@@ -558,24 +558,24 @@ def main():
                                         st.caption(f"{exam['duree_minutes']} min")
                                     
                                     with col2:
-                                        st.markdown(f"**📚 {exam['module_nom']}**")
+                                        st.markdown(f"** {exam['module_nom']}**")
                                         st.caption(f"Code: {exam['module_code']} | {exam['credits']} crédits | Semestre {exam['semestre']}")
-                                        st.caption(f"👨‍🏫 {exam['professeur_responsable']} ({exam['professeur_grade']})")
+                                        st.caption(f"‍ {exam['professeur_responsable']} ({exam['professeur_grade']})")
                                     
                                     with col3:
-                                        st.markdown(f"**📍 {exam['salle_nom']}**")
+                                        st.markdown(f"** {exam['salle_nom']}**")
                                         st.caption(f"{exam['salle_type'].title()}")
-                                        st.caption(f"👥 {exam['nb_inscrits']}/{exam['capacite_examen']} places")
+                                        st.caption(f" {exam['nb_inscrits']}/{exam['capacite_examen']} places")
                                 
                                 st.markdown("---")
                     
-                    elif view_mode == "📋 Liste Détaillée":
+                    elif view_mode == " Liste Détaillée":
                         for idx, exam in df_planning.iterrows():
-                            with st.expander(f"📚 {exam['module_nom']} - {exam['date_str']} à {exam['heure']}"):
+                            with st.expander(f" {exam['module_nom']} - {exam['date_str']} à {exam['heure']}"):
                                 col1, col2 = st.columns(2)
                                 
                                 with col1:
-                                    st.markdown("**📖 Informations Module**")
+                                    st.markdown("** Informations Module**")
                                     st.write(f"- **Code:** {exam['module_code']}")
                                     st.write(f"- **Crédits:** {exam['credits']}")
                                     st.write(f"- **Semestre:** {exam['semestre']}")
@@ -583,14 +583,14 @@ def main():
                                     st.write(f"- **Inscrits:** {exam['nb_inscrits']} étudiants")
                                 
                                 with col2:
-                                    st.markdown("**📍 Logistique**")
+                                    st.markdown("** Logistique**")
                                     st.write(f"- **Date:** {exam['date_str']}")
                                     st.write(f"- **Heure:** {exam['heure']}")
                                     st.write(f"- **Salle:** {exam['salle_nom']}")
                                     st.write(f"- **Type:** {exam['salle_type'].title()}")
                                     st.write(f"- **Capacité:** {exam['capacite_examen']} places")
                                 
-                                st.markdown("**👨‍🏫 Responsable**")
+                                st.markdown("**‍ Responsable**")
                                 st.write(f"{exam['professeur_responsable']} - {exam['professeur_grade']}")
                     
                     else:  # Tableau
@@ -617,7 +617,7 @@ def main():
                     
                     # Statistics
                     st.markdown("---")
-                    st.subheader("📊 Statistiques")
+                    st.subheader(" Statistiques")
                     
                     col_stat1, col_stat2, col_stat3, col_stat4 = st.columns(4)
                     
@@ -643,7 +643,7 @@ def main():
                     with col_exp1:
                         csv = df_planning.to_csv(index=False, encoding='utf-8')
                         st.download_button(
-                            label="📥 Exporter en CSV",
+                            label=" Exporter en CSV",
                             data=csv,
                             file_name=f"planning_formation_{formation_id}_{periode_id_form}.csv",
                             mime="text/csv"
@@ -736,9 +736,9 @@ def main():
                                     cell.value = (
                                         f"{exam_data['module_code']}\n"
                                         f"{exam_data['module_nom']}\n"
-                                        f"📍 {exam_data['salle_nom']}\n"
-                                        f"👨‍🏫 {exam_data['professeur_responsable']}\n"
-                                        f"👥 {exam_data['nb_inscrits']} étudiants | ⏱️ {exam_data['duree_minutes']} min"
+                                        f" {exam_data['salle_nom']}\n"
+                                        f"‍ {exam_data['professeur_responsable']}\n"
+                                        f" {exam_data['nb_inscrits']} étudiants | ⏱ {exam_data['duree_minutes']} min"
                                     )
                                     cell.fill = exam_fill
                                     cell.font = exam_font
@@ -789,7 +789,7 @@ def main():
                         output.seek(0)
                         
                         st.download_button(
-                            label="📊 Exporter en Excel (Calendrier)",
+                            label=" Exporter en Excel (Calendrier)",
                             data=output,
                             file_name=f"planning_calendrier_{formation_info['formation_niveau']}_{periode_id_form}.xlsx",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -799,6 +799,335 @@ def main():
                     st.info("Aucun examen planifié pour cette formation")
             else:
                 st.info("Aucune formation avec examens planifiés pour cette période")
+        else:
+            st.warning("Aucune période d'examen active")
+    
+    with tab6:
+        st.header(" Planning par Professeur")
+        
+        periodes = db.get_periodes_examen(actif=True)
+        
+        if periodes:
+            periode_options = {
+                f"{p['nom']} ({p['date_debut']} - {p['date_fin']})": p['id'] 
+                for p in periodes
+            }
+            
+            selected_periode_prof = st.selectbox(
+                "Sélectionnez la période d'examen",
+                options=list(periode_options.keys()),
+                key="periode_prof"
+            )
+            
+            periode_id_prof = periode_options[selected_periode_prof]
+            
+            # Get all professors with their surveillance count
+            professors_summary = db.execute_query("""
+                SELECT 
+                    p.id as professeur_id,
+                    p.nom || ' ' || p.prenom as professeur_nom,
+                    p.grade as professeur_grade,
+                    d.nom as departement_nom,
+                    COUNT(s.id) as nb_surveillances
+                FROM professeurs p
+                JOIN departements d ON p.dept_id = d.id
+                LEFT JOIN surveillances s ON p.id = s.prof_id
+                LEFT JOIN examens e ON s.examen_id = e.id AND e.periode_id = %s
+                GROUP BY p.id, p.nom, p.prenom, p.grade, d.nom
+                HAVING COUNT(s.id) > 0
+                ORDER BY d.nom, p.nom
+            """, (periode_id_prof,))
+            
+            if professors_summary:
+                st.success(f" {len(professors_summary)} professeur(s) avec surveillances planifiées")
+                
+                # Department filter
+                departments = sorted(list(set([p['departement_nom'] for p in professors_summary])))
+                selected_dept = st.selectbox(
+                    "Filtrer par département",
+                    options=["Tous"] + departments,
+                    key="dept_filter_prof"
+                )
+                
+                # Filter professors by department
+                if selected_dept != "Tous":
+                    professors_summary = [p for p in professors_summary if p['departement_nom'] == selected_dept]
+                
+                # Professor selection
+                professor_options = {
+                    f"{p['professeur_nom']} ({p['professeur_grade']}) - {p['departement_nom']} - {p['nb_surveillances']} surveillances": p['professeur_id']
+                    for p in professors_summary
+                }
+                
+                selected_professor_name = st.selectbox(
+                    "Sélectionnez un professeur",
+                    options=list(professor_options.keys())
+                )
+                
+                professor_id = professor_options[selected_professor_name]
+                
+                # Get detailed planning for selected professor
+                planning = db.get_planning_professeur(professor_id, periode_id_prof)
+                
+                if planning:
+                    st.success(f" {len(planning)} surveillance(s) planifiée(s) pour ce professeur")
+                    
+                    # Professor info
+                    professor_info = professors_summary[[p['professeur_id'] for p in professors_summary].index(professor_id)]
+                    col_info1, col_info2, col_info3 = st.columns(3)
+                    
+                    with col_info1:
+                        st.info(f"**Professeur:** {professor_info['professeur_nom']}")
+                    with col_info2:
+                        st.info(f"**Grade:** {professor_info['professeur_grade']}")
+                    with col_info3:
+                        st.info(f"**Département:** {professor_info['departement_nom']}")
+                    
+                    st.markdown("---")
+                    
+                    # Display options
+                    view_mode = st.radio(
+                        "Mode d'affichage",
+                        [" Calendrier", " Liste Détaillée", " Tableau"],
+                        horizontal=True,
+                        key="view_mode_professor"
+                    )
+                    
+                    df_planning = pd.DataFrame(planning)
+                    df_planning['date'] = pd.to_datetime(df_planning['date_heure']).dt.date
+                    df_planning['heure'] = pd.to_datetime(df_planning['date_heure']).dt.strftime('%H:%M')
+                    df_planning['date_str'] = pd.to_datetime(df_planning['date_heure']).dt.strftime('%d/%m/%Y')
+                    
+                    if view_mode == " Calendrier":
+                        # Group by date
+                        dates = sorted(df_planning['date'].unique())
+                        
+                        for date in dates:
+                            exams_on_date = df_planning[df_planning['date'] == date].sort_values('heure')
+                            
+                            st.markdown(f"### {date.strftime('%A %d %B %Y')}")
+                            
+                            for idx, exam in exams_on_date.iterrows():
+                                with st.container():
+                                    col1, col2, col3 = st.columns([1, 2, 1])
+                                    
+                                    with col1:
+                                        st.markdown(f"** {exam['heure']}**")
+                                        st.caption(f"{exam['duree_minutes']} min")
+                                    
+                                    with col2:
+                                        role_badge = " Responsable" if exam['role'] == 'responsable' else " Surveillant"
+                                        st.markdown(f"**{role_badge}** - {exam['module_nom']}")
+                                        st.caption(f" {exam['salle_nom']} | {exam['nb_inscrits']} étudiants")
+                                    
+                                    with col3:
+                                        if exam['role'] == 'responsable':
+                                            st.success("Responsable")
+                                        else:
+                                            st.info("Surveillant")
+                                
+                                st.markdown("---")
+                    
+                    elif view_mode == " Liste Détaillée":
+                        for idx, exam in df_planning.iterrows():
+                            with st.expander(f" {exam['date_str']} - {exam['heure']} - {exam['module_nom']}"):
+                                col1, col2 = st.columns(2)
+                                
+                                with col1:
+                                    st.markdown(f"**Module:** {exam['module_nom']}")
+                                    st.markdown(f"**Date:** {exam['date_str']}")
+                                    st.markdown(f"**Heure:** {exam['heure']}")
+                                    st.markdown(f"**Durée:** {exam['duree_minutes']} minutes")
+                                
+                                with col2:
+                                    st.markdown(f"**Salle:** {exam['salle_nom']}")
+                                    st.markdown(f"**Rôle:** {exam['role'].capitalize()}")
+                                    st.markdown(f"**Étudiants:** {exam['nb_inscrits']}")
+                    
+                    else:  # Tableau
+                        st.dataframe(
+                            df_planning[['date_str', 'heure', 'module_nom', 'salle_nom', 
+                                       'role', 'nb_inscrits', 'duree_minutes']],
+                            use_container_width=True,
+                            hide_index=True,
+                            column_config={
+                                "date_str": "Date",
+                                "heure": "Heure",
+                                "module_nom": "Module",
+                                "salle_nom": "Salle",
+                                "role": "Rôle",
+                                "nb_inscrits": "Étudiants",
+                                "duree_minutes": "Durée (min)"
+                            }
+                        )
+                    
+                    # Export options
+                    st.markdown("---")
+                    st.subheader("Exporter le planning")
+                    
+                    col_export1, col_export2 = st.columns(2)
+                    
+                    with col_export1:
+                        # CSV Export
+                        csv = df_planning[['date_str', 'heure', 'module_nom', 'salle_nom', 
+                                          'role', 'nb_inscrits', 'duree_minutes']].to_csv(index=False)
+                        st.download_button(
+                            label=" Télécharger en CSV",
+                            data=csv,
+                            file_name=f"planning_professeur_{professor_id}.csv",
+                            mime="text/csv",
+                            use_container_width=True
+                        )
+                    
+                    with col_export2:
+                        # Excel Export - Calendar Style
+                        import io
+                        from openpyxl import Workbook
+                        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+                        from openpyxl.utils import get_column_letter
+                        
+                        output = io.BytesIO()
+                        
+                        # Create calendar-style Excel
+                        wb = Workbook()
+                        ws = wb.active
+                        ws.title = "Planning Calendrier"
+                        
+                        # Get unique dates and time slots
+                        dates = sorted(df_planning['date'].unique())
+                        time_slots = ['08:30', '11:00', '14:30', '17:00']
+                        
+                        # Define styles
+                        header_fill = PatternFill(start_color="1F77B4", end_color="1F77B4", fill_type="solid")
+                        header_font = Font(bold=True, color="FFFFFF", size=12)
+                        time_fill = PatternFill(start_color="AEC7E8", end_color="AEC7E8", fill_type="solid")
+                        time_font = Font(bold=True, size=11)
+                        exam_fill = PatternFill(start_color="D4EDDA", end_color="D4EDDA", fill_type="solid")
+                        exam_font = Font(size=10)
+                        border = Border(
+                            left=Side(style='thin'),
+                            right=Side(style='thin'),
+                            top=Side(style='thin'),
+                            bottom=Side(style='thin')
+                        )
+                        
+                        # Professor info header
+                        ws.merge_cells('A1:' + get_column_letter(len(dates) + 1) + '1')
+                        ws['A1'] = f"Planning - {professor_info['professeur_nom']}"
+                        ws['A1'].font = Font(bold=True, size=14, color="1F77B4")
+                        ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+                        
+                        ws.merge_cells('A2:' + get_column_letter(len(dates) + 1) + '2')
+                        ws['A2'] = f"Grade: {professor_info['professeur_grade']} | Département: {professor_info['departement_nom']} | Période: {selected_periode_prof}"
+                        ws['A2'].font = Font(size=11)
+                        ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
+                        
+                        # Headers - Days
+                        ws['A4'] = "Heure"
+                        ws['A4'].fill = header_fill
+                        ws['A4'].font = header_font
+                        ws['A4'].alignment = Alignment(horizontal='center', vertical='center')
+                        ws['A4'].border = border
+                        
+                        for col_idx, date in enumerate(dates, start=2):
+                            cell = ws.cell(row=4, column=col_idx)
+                            cell.value = date.strftime('%d/%m/%Y\n%A')
+                            cell.fill = header_fill
+                            cell.font = header_font
+                            cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+                            cell.border = border
+                            ws.column_dimensions[get_column_letter(col_idx)].width = 35
+                        
+                        ws.column_dimensions['A'].width = 12
+                        ws.row_dimensions[4].height = 35
+                        
+                        # Time slots rows
+                        for row_idx, time_slot in enumerate(time_slots, start=5):
+                            # Time column
+                            time_cell = ws.cell(row=row_idx, column=1)
+                            time_cell.value = time_slot
+                            time_cell.fill = time_fill
+                            time_cell.font = time_font
+                            time_cell.alignment = Alignment(horizontal='center', vertical='center')
+                            time_cell.border = border
+                            ws.row_dimensions[row_idx].height = 60
+                            
+                            # Exam cells for each day
+                            for col_idx, date in enumerate(dates, start=2):
+                                cell = ws.cell(row=row_idx, column=col_idx)
+                                
+                                # Find exam for this date and time
+                                exam = df_planning[
+                                    (df_planning['date'] == date) & 
+                                    (df_planning['heure'] == time_slot)
+                                ]
+                                
+                                if not exam.empty:
+                                    exam_data = exam.iloc[0]
+                                    role_icon = "" if exam_data['role'] == 'responsable' else ""
+                                    cell.value = (
+                                        f"{role_icon} {exam_data['role'].upper()}\n"
+                                        f"{exam_data['module_nom']}\n"
+                                        f" {exam_data['salle_nom']}\n"
+                                        f" {exam_data['nb_inscrits']} étudiants | {exam_data['duree_minutes']} min"
+                                    )
+                                    cell.fill = exam_fill
+                                    cell.font = exam_font
+                                else:
+                                    cell.value = ""
+                                
+                                cell.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
+                                cell.border = border
+                        
+                        # Add summary sheet
+                        ws_summary = wb.create_sheet("Détails")
+                        df_planning_export = df_planning[[
+                            'date_str', 'heure', 'module_nom', 'salle_nom', 
+                            'role', 'nb_inscrits', 'duree_minutes'
+                        ]].copy()
+                        
+                        # Write summary data
+                        for r_idx, row in enumerate(df_planning_export.values, start=1):
+                            for c_idx, value in enumerate(row, start=1):
+                                ws_summary.cell(row=r_idx + 1, column=c_idx, value=value)
+                        
+                        # Summary headers
+                        headers = ['Date', 'Heure', 'Module', 'Salle', 'Rôle', 'Étudiants', 'Durée (min)']
+                        for c_idx, header in enumerate(headers, start=1):
+                            cell = ws_summary.cell(row=1, column=c_idx)
+                            cell.value = header
+                            cell.fill = header_fill
+                            cell.font = header_font
+                            cell.alignment = Alignment(horizontal='center', vertical='center')
+                            cell.border = border
+                        
+                        # Auto-adjust column widths in summary
+                        for column in ws_summary.columns:
+                            max_length = 0
+                            column_letter = get_column_letter(column[0].column)
+                            for cell in column:
+                                try:
+                                    if len(str(cell.value)) > max_length:
+                                        max_length = len(str(cell.value))
+                                except:
+                                    pass
+                            adjusted_width = min(max_length + 2, 50)
+                            ws_summary.column_dimensions[column_letter].width = adjusted_width
+                        
+                        wb.save(output)
+                        output.seek(0)
+                        
+                        st.download_button(
+                            label=" Télécharger en Excel (Calendrier)",
+                            data=output,
+                            file_name=f"planning_calendrier_{professor_info['professeur_nom'].replace(' ', '_')}.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            use_container_width=True
+                        )
+                else:
+                    st.info("Aucune surveillance planifiée pour ce professeur")
+            else:
+                st.info("Aucun professeur avec surveillances planifiées pour cette période")
         else:
             st.warning("Aucune période d'examen active")
 

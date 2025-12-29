@@ -13,7 +13,7 @@ from src.analytics import Analytics
 
 st.set_page_config(
     page_title="Statistiques - Vue Stratégique",
-    page_icon="📊",
+    page_icon="",
     layout="wide"
 )
 
@@ -26,16 +26,16 @@ def get_analytics(_db):
     return Analytics(_db)
 
 def main():
-    st.title("📊 Statistiques et Vue Stratégique")
+    st.title(" Statistiques et Vue Stratégique")
     st.markdown("Tableau de bord pour Vice-doyen et Doyen")
     
     db = get_database()
     analytics = get_analytics(db)
     
-    tab1, tab2, tab3, tab4 = st.tabs(["📈 KPIs Globaux", "🏛️ Par Département", "👨‍🏫 Charge Professeurs", "💺 Occupation Salles"])
+    tab1, tab2, tab3, tab4 = st.tabs([" KPIs Globaux", " Par Département", "‍ Charge Professeurs", " Occupation Salles"])
     
     with tab1:
-        st.header("📈 Indicateurs Clés de Performance")
+        st.header(" Indicateurs Clés de Performance")
         
         try:
             kpis = analytics.get_dashboard_kpis()
@@ -43,27 +43,27 @@ def main():
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                st.markdown("### 👥 Population")
+                st.markdown("###  Population")
                 st.metric("Étudiants", f"{kpis.get('total_etudiants', 0):,}")
                 st.metric("Professeurs", f"{kpis.get('total_professeurs', 0):,}")
                 ratio = kpis.get('total_etudiants', 0) / max(kpis.get('total_professeurs', 1), 1)
                 st.metric("Ratio Étudiants/Prof", f"{ratio:.1f}")
             
             with col2:
-                st.markdown("### 📚 Académique")
+                st.markdown("###  Académique")
                 st.metric("Départements", kpis.get('total_departements', 0))
                 st.metric("Formations", kpis.get('total_formations', 0))
                 st.metric("Modules", kpis.get('total_modules', 0))
             
             with col3:
-                st.markdown("### 🏫 Infrastructure")
+                st.markdown("###  Infrastructure")
                 st.metric("Salles disponibles", kpis.get('total_salles', 0))
                 st.metric("Capacité totale", f"{kpis.get('capacite_totale', 0):,}")
                 st.metric("Examens planifiés", kpis.get('examens_planifies', 0))
             
             st.markdown("---")
             
-            st.subheader("📊 Inscriptions")
+            st.subheader(" Inscriptions")
             
             col_ins1, col_ins2 = st.columns(2)
             
@@ -84,7 +84,7 @@ def main():
             periodes = db.get_periodes_examen(actif=True)
             if periodes:
                 st.markdown("---")
-                st.subheader("🎯 Score d'Efficacité du Planning")
+                st.subheader(" Score d'Efficacité du Planning")
                 
                 periode_options = {
                     f"{p['nom']}": p['id'] 
@@ -104,13 +104,13 @@ def main():
                 
                 if score >= 80:
                     color = "green"
-                    emoji = "🟢"
+                    emoji = ""
                 elif score >= 60:
                     color = "orange"
-                    emoji = "🟡"
+                    emoji = ""
                 else:
                     color = "red"
-                    emoji = "🔴"
+                    emoji = ""
                 
                 st.markdown(f"### {emoji} Score Global: {score:.1f}/100")
                 
@@ -135,7 +135,7 @@ def main():
             st.error(f"Erreur lors du chargement des KPIs: {e}")
     
     with tab2:
-        st.header("🏛️ Statistiques par Département")
+        st.header(" Statistiques par Département")
         
         try:
             dept_stats = analytics.get_department_stats()
@@ -148,15 +148,15 @@ def main():
                     column_config={
                         "nb_etudiants": st.column_config.NumberColumn(
                             "Étudiants",
-                            format="%d 👨‍🎓"
+                            format="%d ‍"
                         ),
                         "nb_professeurs": st.column_config.NumberColumn(
                             "Professeurs",
-                            format="%d 👨‍🏫"
+                            format="%d ‍"
                         ),
                         "nb_formations": st.column_config.NumberColumn(
                             "Formations",
-                            format="%d 📚"
+                            format="%d "
                         )
                     }
                 )
@@ -203,7 +203,7 @@ def main():
             st.error(f"Erreur: {e}")
     
     with tab3:
-        st.header("👨‍🏫 Charge de Travail des Professeurs")
+        st.header("‍ Charge de Travail des Professeurs")
         
         try:
             charge_profs = analytics.get_professor_workload()
@@ -272,13 +272,13 @@ def main():
             st.error(f"Erreur: {e}")
     
     with tab4:
-        st.header("💺 Occupation des Salles")
+        st.header(" Occupation des Salles")
         
         try:
             occupation = analytics.get_occupation_analysis()
             
             if not occupation.empty:
-                st.subheader("📅 Occupation par Jour")
+                st.subheader(" Occupation par Jour")
                 
                 st.dataframe(
                     occupation,
@@ -339,11 +339,11 @@ def main():
                 avg_occupation = occupation['taux_occupation_pct'].mean()
                 
                 if avg_occupation < 50:
-                    st.warning(f"⚠️ Taux d'occupation moyen faible: {avg_occupation:.1f}%. Optimisation possible.")
+                    st.warning(f" Taux d'occupation moyen faible: {avg_occupation:.1f}%. Optimisation possible.")
                 elif avg_occupation > 90:
-                    st.error(f"❌ Taux d'occupation très élevé: {avg_occupation:.1f}%. Risque de saturation.")
+                    st.error(f" Taux d'occupation très élevé: {avg_occupation:.1f}%. Risque de saturation.")
                 else:
-                    st.success(f"✅ Taux d'occupation optimal: {avg_occupation:.1f}%")
+                    st.success(f" Taux d'occupation optimal: {avg_occupation:.1f}%")
             else:
                 st.info("Aucune donnée d'occupation disponible")
         
