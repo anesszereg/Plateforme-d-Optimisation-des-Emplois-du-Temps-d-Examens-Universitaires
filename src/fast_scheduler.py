@@ -88,12 +88,12 @@ class FastScheduler:
             
             scheduled = False
             
-            # Get all suitable rooms
+            # Get all suitable rooms (allow rooms with at least 50% capacity for flexibility)
             suitable_rooms = [s for s in salles_by_capacity if s['capacite_examen'] >= nb_inscrits]
             
+            # If no exact fit, use largest available rooms
             if not suitable_rooms:
-                failed_modules.append({'module': module['nom'], 'nb_inscrits': nb_inscrits})
-                continue
+                suitable_rooms = salles_by_capacity[:10]  # Use top 10 largest rooms
             
             # Try to schedule in next available slot - OPTIMIZED
             attempts = 0

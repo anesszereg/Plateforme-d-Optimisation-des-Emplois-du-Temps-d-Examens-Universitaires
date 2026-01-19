@@ -2,6 +2,7 @@
 -- Schéma de base de données PostgreSQL
 
 -- Suppression des tables existantes (ordre inverse des dépendances)
+DROP TABLE IF EXISTS utilisateurs CASCADE;
 DROP TABLE IF EXISTS examens CASCADE;
 DROP TABLE IF EXISTS surveillances CASCADE;
 DROP TABLE IF EXISTS inscriptions CASCADE;
@@ -164,3 +165,36 @@ COMMENT ON TABLE inscriptions IS 'Inscriptions des étudiants aux modules';
 COMMENT ON TABLE examens IS 'Planification des examens';
 COMMENT ON TABLE surveillances IS 'Affectation des surveillants aux examens';
 COMMENT ON TABLE periodes_examen IS 'Périodes d''examen (session normale, rattrapage)';
+
+-- ============================================
+-- SYSTÈME D'AUTHENTIFICATION
+-- ============================================
+
+-- Table des utilisateurs (authentification)
+CREATE TABLE utilisateurs (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(150) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(30) NOT NULL CHECK (role IN ('vice_doyen', 'admin_examens', 'chef_departement', 'professeur', 'etudiant')),
+    -- Références optionnelles selon le rôle
+    etudiant_id INTEGER REFERENCES etudiants(id) ON DELETE CASCADE,
+    professeur_id INTEGER REFERENCES professeurs(id) ON DELETE CASCADE,
+    departement_id INTEGER REFERENCES departements(id) ON DELETE SET NULL,
+    -- Métadonnées
+    actif BOOLEAN DEFAULT TRUE,
+    derniere_connexion TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- Contraintes
+    CONSTRAINT check_role_reference CHECK (
+        (role = 'etudiant' AND etudiant_id IS NOT NULL AND professeur_id IS NULL) OR
+        (role = 'professeur' AND professeur_id IS NOT NULL AND etudiant_id IS NULL) OR
+        (role = 'chef_departement' AND professeur_id IS NOT NULL AND departement_id IS NOT NULL AND etudiant_id IS NULL) OR
+        (role IN ('vice_doyen', 'admin_examens') AND etudiant_id IS NULL)
+    )
+);
+
+-- Index pour l'authentification
+CREATE INDEX idx_utilisateurs_username ON utilisateurs(username);
+CREATE INDEX idx_utilisateurs_role ON utilisateurs(role);
+
+COMMENT ON TABLE utilisateurs IS 'Comptes utilisateurs pour l''authentification (5 rôles: vice_doyen, admin_examens, chef_departement, professeur, etudiant)';

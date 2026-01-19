@@ -44,7 +44,9 @@ class Analytics:
         
         utilization_rate = (total_students / total_capacity * 100) if total_capacity > 0 else 0
         
-        conflicts, total_conflicts = self.db.get_conflits_etudiants(), self.db.get_conflits_professeurs()
+        conflits_etu = self.db.get_conflits_etudiants() or []
+        conflits_prof = self.db.get_conflits_professeurs() or []
+        total_conflicts = len(conflits_etu) + len(conflits_prof)
         conflict_rate = total_conflicts / len(examens) * 100 if examens else 0
         
         unique_dates = len(set(e['date_heure'].date() for e in examens if e.get('date_heure')))
@@ -64,11 +66,15 @@ class Analytics:
         }
     
     def get_conflict_summary(self) -> Dict:
+        conflits_etu = self.db.get_conflits_etudiants() or []
+        conflits_prof = self.db.get_conflits_professeurs() or []
+        conflits_cap = self.db.get_conflits_capacite() or []
+        conflits_sal = self.db.get_conflits_salles() or []
         return {
-            'etudiants': len(self.db.get_conflits_etudiants()),
-            'professeurs': len(self.db.get_conflits_professeurs()),
-            'capacite': len(self.db.get_conflits_capacite()),
-            'salles': len(self.db.get_conflits_salles())
+            'etudiants': len(conflits_etu),
+            'professeurs': len(conflits_prof),
+            'capacite': len(conflits_cap),
+            'salles': len(conflits_sal)
         }
     
     def export_schedule_to_csv(self, periode_id: int, filepath: str):

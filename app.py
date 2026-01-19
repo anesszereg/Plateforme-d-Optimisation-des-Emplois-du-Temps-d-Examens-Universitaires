@@ -14,7 +14,7 @@ from src.scheduler import ExamScheduler
 
 st.set_page_config(
     page_title="Plateforme d'Optimisation des Examens",
-    page_icon="📄",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
