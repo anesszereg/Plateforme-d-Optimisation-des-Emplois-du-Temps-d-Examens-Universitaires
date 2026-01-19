@@ -1,327 +1,109 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime
 import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from src.database import Database
-from src.analytics import Analytics
-from src.scheduler import ExamScheduler
+from src.auth import Auth, get_role_display_name
 
 st.set_page_config(
     page_title="Plateforme d'Optimisation des Examens",
     page_icon="",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
-
-st.markdown("""
-    <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-left: 4px solid #1f77b4;
-    }
-    .success-box {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-    .error-box {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 @st.cache_resource
 def get_database():
     try:
         db = Database()
-        # Test connection
         with db.get_connection() as conn:
             pass
         return db
     except Exception as e:
         return None
 
-@st.cache_resource
-def get_analytics(_db):
-    return Analytics(_db)
+def init_session():
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+    if 'user' not in st.session_state:
+        st.session_state.user = None
 
-@st.cache_resource
-def get_scheduler(_db):
-    return ExamScheduler(_db)
-
-def main():
-    st.markdown('<div class="main-header">Plateforme d\'Optimisation des Emplois du Temps d\'Examens</div>', unsafe_allow_html=True)
+def login_form():
+    st.title("Plateforme d'Examens Universitaires")
+    st.markdown("### Connexion")
     
-    # Check database connection
     db = get_database()
     
     if db is None:
-        st.error("**Database Connection Failed**")
-        st.warning("""
-        ### Database Not Configured
-        
-        The application cannot connect to the database. Please configure your database credentials:
-        
-        **For Streamlit Cloud:**
-        1. Go to your app settings
-        2. Click on "Secrets" 
-        3. Add the following configuration:
-        
-        ```toml
-        DB_HOST = "your-database-host"
-        DB_PORT = "5432"
-        DB_NAME = "exam_scheduling"
-        DB_USER = "your-username"
-        DB_PASSWORD = "your-password"
-        ```
-        
-        **Need a database?**
-        - **Supabase** (FREE): https://supabase.com
-        - **Neon** (FREE): https://neon.tech
-        - **ElephantSQL** (FREE): https://elephantsql.com
-        
-        After configuring secrets, reboot your app.
-        """)
-        
-        with st.expander("Detailed Setup Instructions"):
-            st.markdown("""
-            ### Step 1: Create a Database
-            
-            1. Go to [Supabase](https://supabase.com) (recommended)
-            2. Create a new project
-            3. Wait for initialization (~2 minutes)
-            4. Go to Settings → Database
-            5. Copy the connection details
-            
-            ### Step 2: Add Secrets to Streamlit Cloud
-            
-            1. In your Streamlit Cloud dashboard
-            2. Click on your app → Settings → Secrets
-            3. Paste the configuration with your actual values
-            4. Click Save
-            
-            ### Step 3: Initialize Database
-            
-            Use Supabase SQL Editor to run:
-            - `database/schema.sql`
-            - `database/queries.sql`
-            - `database/indexes.sql`
-            
-            Then run: `scripts/generate_data.py` to populate data
-            
-            ### Step 4: Reboot App
-            
-            Click "Reboot app" in Streamlit Cloud dashboard.
-            """)
-        
+        st.error("Impossible de se connecter a la base de donnees")
         st.stop()
     
-    analytics = get_analytics(db)
+    auth = Auth(db)
     
-    st.sidebar.title("Navigation")
-    st.sidebar.info("Utilisez les pages dans le menu pour accéder aux différentes fonctionnalités")
+    with st.form("login_form"):
+        username = st.text_input("Email / Nom d'utilisateur", placeholder="exemple@univ.dz")
+        password = st.text_input("Mot de passe", type="password")
+        submit = st.form_submit_button("Se connecter", use_container_width=True, type="primary")
     
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### Rôles disponibles")
-    st.sidebar.markdown("""
-    - **Administration** : Génération d'EDT
-    - **Statistiques** : Vue stratégique
-    - **Départements** : Gestion départementale
-    - **Consultation** : Planning personnel
-    """)
-    
-    st.header("Tableau de Bord Global")
-    
-    try:
-        kpis = analytics.get_dashboard_kpis()
-        
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric(
-                label="Étudiants",
-                value=f"{kpis.get('total_etudiants', 0):,}",
-                delta="Total inscrits"
-            )
-        
-        with col2:
-            st.metric(
-                label="Professeurs",
-                value=f"{kpis.get('total_professeurs', 0):,}",
-                delta="Corps enseignant"
-            )
-        
-        with col3:
-            st.metric(
-                label="Modules",
-                value=f"{kpis.get('total_modules', 0):,}",
-                delta="Enseignements"
-            )
-        
-        with col4:
-            st.metric(
-                label="Inscriptions",
-                value=f"{kpis.get('total_inscriptions', 0):,}",
-                delta="Total"
-            )
-        
-        st.markdown("---")
-        
-        col5, col6, col7, col8 = st.columns(4)
-        
-        with col5:
-            st.metric(
-                label="Départements",
-                value=kpis.get('total_departements', 0)
-            )
-        
-        with col6:
-            st.metric(
-                label="Formations",
-                value=kpis.get('total_formations', 0)
-            )
-        
-        with col7:
-            st.metric(
-                label="Salles",
-                value=kpis.get('total_salles', 0)
-            )
-        
-        with col8:
-            st.metric(
-                label="Capacité totale",
-                value=f"{kpis.get('capacite_totale', 0):,}"
-            )
-        
-        st.markdown("---")
-        
-        st.subheader("Statistiques par Département")
-        
-        dept_stats = analytics.get_department_stats()
-        
-        if not dept_stats.empty:
-            col_left, col_right = st.columns(2)
-            
-            with col_left:
-                fig_students = px.bar(
-                    dept_stats,
-                    x='departement',
-                    y='nb_etudiants',
-                    title='Répartition des Étudiants par Département',
-                    labels={'nb_etudiants': 'Nombre d\'étudiants', 'departement': 'Département'},
-                    color='nb_etudiants',
-                    color_continuous_scale='Blues'
-                )
-                fig_students.update_layout(showlegend=False)
-                st.plotly_chart(fig_students, use_container_width=True)
-            
-            with col_right:
-                fig_profs = px.bar(
-                    dept_stats,
-                    x='departement',
-                    y='nb_professeurs',
-                    title='Nombre de Professeurs par Département',
-                    labels={'nb_professeurs': 'Nombre de professeurs', 'departement': 'Département'},
-                    color='nb_professeurs',
-                    color_continuous_scale='Greens'
-                )
-                fig_profs.update_layout(showlegend=False)
-                st.plotly_chart(fig_profs, use_container_width=True)
-            
-            st.dataframe(
-                dept_stats,
-                use_container_width=True,
-                hide_index=True
-            )
+    if submit:
+        if not username or not password:
+            st.error("Veuillez remplir tous les champs")
         else:
-            st.info("Aucune statistique disponible pour le moment")
-        
-        st.markdown("---")
-        
-        st.subheader("Détection de Conflits")
-        
-        conflict_summary = analytics.get_conflict_summary()
-        
-        col_c1, col_c2, col_c3, col_c4 = st.columns(4)
-        
-        with col_c1:
-            st.metric(
-                label="Conflits Étudiants",
-                value=conflict_summary.get('etudiants', 0),
-                delta="Examens multiples/jour"
-            )
-        
-        with col_c2:
-            st.metric(
-                label="Conflits Professeurs",
-                value=conflict_summary.get('professeurs', 0),
-                delta=">3 examens/jour"
-            )
-        
-        with col_c3:
-            st.metric(
-                label="Conflits Capacité",
-                value=conflict_summary.get('capacite', 0),
-                delta="Salles surchargées"
-            )
-        
-        with col_c4:
-            st.metric(
-                label="Conflits Salles",
-                value=conflict_summary.get('salles', 0),
-                delta="Chevauchements"
-            )
-        
-        total_conflicts = sum(conflict_summary.values())
-        if total_conflicts == 0:
-            st.success("Aucun conflit détecté dans le planning actuel!")
-        else:
-            st.warning(f"{total_conflicts} conflit(s) détecté(s). Consultez la page Administration pour plus de détails.")
-        
-    except Exception as e:
-        st.error(f"Erreur lors du chargement des données: {e}")
-        st.info("Assurez-vous que la base de données est initialisée et contient des données.")
-        st.code("""
-# Pour initialiser la base de données:
-python scripts/init_database.py
-
-# Pour générer les données de test:
-python scripts/generate_data.py
+            user = auth.authenticate(username.strip(), password)
+            
+            if user:
+                st.session_state.authenticated = True
+                st.session_state.user = user
+                
+                role = user['role']
+                page_map = {
+                    'vice_doyen': 'Vice_Doyen',
+                    'admin_examens': 'Admin_Examens',
+                    'chef_departement': 'Chef_Departement',
+                    'professeur': 'Professeurs',
+                    'etudiant': 'Etudiants'
+                }
+                
+                if role in page_map:
+                    page_name = page_map[role]
+                    st.markdown(f'<meta http-equiv="refresh" content="0; url=/{page_name}">', unsafe_allow_html=True)
+                    st.success(f"Redirection vers {page_name}...")
+                    st.stop()
+                else:
+                    st.rerun()
+            else:
+                st.error("Identifiants incorrects")
+    
+    st.markdown("---")
+    with st.expander("Aide"):
+        st.markdown("""
+        ### Formats des identifiants
+        - **Etudiants**: email + mot de passe (Nom+Prenom+Promo)
+        - **Professeurs**: email + mot de passe fourni
+        - **Administrateurs**: contactez le service informatique
         """)
+
+def show_logged_in():
+    user = st.session_state.user
+    st.title("Plateforme d'Examens Universitaires")
+    st.success(f"Connecte: **{user.get('prenom', '')} {user.get('nom', '')}**")
+    st.info(f"Role: **{get_role_display_name(user['role'])}**")
+    st.markdown("---")
+    st.markdown("### Accedez a votre espace via le menu lateral")
     
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### À propos")
-    st.sidebar.info("""
-    **Version**: 1.0.0
-    
-    **Technologies**:
-    - PostgreSQL
-    - Python
-    - Streamlit
-    
-    **Objectif**: Génération automatique d'emplois du temps d'examens en <45 secondes
-    """)
+    if st.button("Se deconnecter", use_container_width=True):
+        st.session_state.authenticated = False
+        st.session_state.user = None
+        st.rerun()
+
+def main():
+    init_session()
+    if st.session_state.authenticated and st.session_state.user:
+        show_logged_in()
+    else:
+        login_form()
 
 if __name__ == "__main__":
     main()
