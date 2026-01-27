@@ -1,5 +1,54 @@
 # Plateforme d'Optimisation des Emplois du Temps d'Examens Universitaires
 
+## 🎬 Démonstration Vidéo
+
+[![Démonstration](https://img.shields.io/badge/YouTube-Voir%20la%20démo-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+> 📺 **[Cliquez ici pour voir la démonstration complète sur YouTube](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)**
+
+---
+
+## 🔐 Identifiants de Connexion
+
+### Administrateurs
+
+| Rôle | Email | Mot de passe |
+|------|-------|--------------|
+| **Vice-Doyen** | `vice.doyen@univ.dz` | `7Tlsi7pvytzE` |
+| **Admin Examens** | `admin.examens@univ.dz` | `GstDBcyhLMZ6` |
+
+### Chefs de Département
+
+| Département | Email | Mot de passe |
+|-------------|-------|--------------|
+| **Informatique** | `chef.info@univ.dz` | `AdaPhi2913` |
+| **Mathématiques** | `chef.math@univ.dz` | `BerCat4352` |
+| **Physique** | `chef.phys@univ.dz` | `BenCla0155` |
+| **Chimie** | `chef.chim@univ.dz` | `AdaMar8686` |
+| **Biologie** | `chef.bio@univ.dz` | `BenAdè3859` |
+| **Économie** | `chef.eco@univ.dz` | `BlaPau0501` |
+| **Lettres** | `chef.lett@univ.dz` | `AleAna6790` |
+
+### Professeurs (exemples)
+
+| Nom | Email | Mot de passe |
+|-----|-------|--------------|
+| Margaux Rousset | `margaux.rousset@university.edu` | `RouMar9597` |
+| Adrienne Joubert | `adrienne.joubert@university.edu` | `JouAdr8458` |
+| Nathalie Rousseau | `nathalie.rousseau@university.edu` | `RouNat5816` |
+
+### Étudiants (exemples)
+
+| Nom | Email | Mot de passe |
+|-----|-------|--------------|
+| Étienne Fischer | `étienne.fischer659@student.university.edu` | `FischerÉtienne2023` |
+| Victor Pires | `victor.pires182@student.university.edu` | `PiresVictor2025` |
+| Marcelle Joly | `marcelle.joly756@student.university.edu` | `JolyMarcelle2025` |
+
+> **Format mot de passe étudiant:** `NomPrénomPromo` (ex: `DupontJean2024`)
+
+---
+
 ## 📋 Description
 
 Système automatisé de génération d'emplois du temps d'examens pour une université de 13,000+ étudiants. Génère des plannings optimisés en moins de 2 minutes tout en respectant toutes les contraintes réglementaires.

@@ -137,15 +137,22 @@ def generate_etudiants(formation_ids):
     print("Génération des étudiants (13,000+)...")
     etudiants = []
     promos = [2023, 2024, 2025]
+    used_emails = set()
     
     students_per_formation = 13000 // len(formation_ids)
+    student_counter = 0
     
     for formation_id in formation_ids:
         nb_etudiants = random.randint(students_per_formation - 20, students_per_formation + 20)
         for _ in range(nb_etudiants):
             nom = fake.last_name()
             prenom = fake.first_name()
-            email = f"{prenom.lower()}.{nom.lower()}{random.randint(1, 999)}@student.university.edu"
+            student_counter += 1
+            email = f"{prenom.lower()}.{nom.lower()}.{student_counter}@student.university.edu"
+            while email in used_emails:
+                student_counter += 1
+                email = f"{prenom.lower()}.{nom.lower()}.{student_counter}@student.university.edu"
+            used_emails.add(email)
             promo = random.choice(promos)
             
             etudiants.append((nom, prenom, email, formation_id, promo))
@@ -201,36 +208,58 @@ def generate_modules(formation_ids):
 def generate_inscriptions(module_ids):
     print("Génération des inscriptions (130,000+)...")
     
+    # Fetch all data in 2 queries instead of 13,000+
     etudiants = db.execute_query("SELECT id, formation_id FROM etudiants")
+    all_modules = db.execute_query("SELECT id, formation_id FROM modules")
     
-    inscriptions = []
+    # Group modules by formation_id in memory
+    modules_by_formation = {}
+    for m in all_modules:
+        fid = m['formation_id']
+        if fid not in modules_by_formation:
+            modules_by_formation[fid] = []
+        modules_by_formation[fid].append(m['id'])
+    
     annee = "2024-2025"
+    total_inserted = 0
+    batch_size = 2000  # Smaller batches to avoid timeout
+    current_batch = []
     
-    for etudiant in etudiants:
-        formation_modules = db.execute_query(
-            "SELECT id FROM modules WHERE formation_id = %s",
-            (etudiant['formation_id'],)
-        )
+    print(f"  Traitement de {len(etudiants)} étudiants...")
+    
+    for i, etudiant in enumerate(etudiants):
+        formation_modules = modules_by_formation.get(etudiant['formation_id'], [])
+        if not formation_modules:
+            continue
         
         nb_modules = random.randint(6, len(formation_modules))
         selected_modules = random.sample(formation_modules, min(nb_modules, len(formation_modules)))
         
-        for module in selected_modules:
-            inscriptions.append((etudiant['id'], module['id'], annee, 'inscrit'))
+        for mod_id in selected_modules:
+            current_batch.append((etudiant['id'], mod_id, annee, 'inscrit'))
+        
+        # Insert batch when it reaches batch_size
+        if len(current_batch) >= batch_size:
+            query = """
+                INSERT INTO inscriptions (etudiant_id, module_id, annee_universitaire, statut)
+                VALUES (%s, %s, %s, %s)
+            """
+            db.execute_many(query, current_batch)
+            total_inserted += len(current_batch)
+            print(f"    {total_inserted} inscriptions insérées...")
+            current_batch = []
     
-    query = """
-        INSERT INTO inscriptions (etudiant_id, module_id, annee_universitaire, statut)
-        VALUES (%s, %s, %s, %s)
-    """
+    # Insert remaining
+    if current_batch:
+        query = """
+            INSERT INTO inscriptions (etudiant_id, module_id, annee_universitaire, statut)
+            VALUES (%s, %s, %s, %s)
+        """
+        db.execute_many(query, current_batch)
+        total_inserted += len(current_batch)
     
-    batch_size = 5000
-    for i in range(0, len(inscriptions), batch_size):
-        batch = inscriptions[i:i + batch_size]
-        db.execute_many(query, batch)
-        print(f"  Batch {i//batch_size + 1}: {len(batch)} inscriptions insérées")
-    
-    print(f"✅ {len(inscriptions)} inscriptions créées")
-    return len(inscriptions)
+    print(f"✅ {total_inserted} inscriptions créées")
+    return total_inserted
 
 def generate_periode_examen():
     print("Génération de la période d'examen...")
