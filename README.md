@@ -3,8 +3,11 @@
 ## 🎬 Démonstration Vidéo
 
 [![Démonstration](https://img.shields.io/badge/YouTube-Voir%20la%20démo-red?style=for-the-badge&logo=youtube)](https://youtu.be/NxeUmVi8hH8)
+[![Live Demo](https://img.shields.io/badge/Streamlit-Live%20Demo-FF4B4B?style=for-the-badge&logo=streamlit)](https://ecb7ybdzm3lrjhjceznsec.streamlit.app/)
 
-> 📺 **[Cliquez ici pour voir la démonstration complète sur YouTube](https://youtu.be/NxeUmVi8hH8)**
+> 📺 **[Voir la démonstration sur YouTube](https://youtu.be/NxeUmVi8hH8)**
+>
+> 🚀 **[Accéder à la démo en ligne](https://ecb7ybdzm3lrjhjceznsec.streamlit.app/)**
 
 ---
 
