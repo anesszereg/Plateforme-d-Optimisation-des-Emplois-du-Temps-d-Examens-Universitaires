@@ -94,14 +94,14 @@ def generate_sql_files():
                 specialite = fake.job()[:100]
                 f.write(f"INSERT INTO professeurs (nom, prenom, email, dept_id, specialite, grade) VALUES ({escape_sql(nom)}, {escape_sql(prenom)}, {escape_sql(email)}, {dept_id}, {escape_sql(specialite)}, {escape_sql(grade)});\n")
     
-    # 5. Etudiants (smaller set for faster import)
-    print("Generating etudiants (5000 for faster import)...")
+    # 5. Etudiants (13,000+ students)
+    print("Generating etudiants (13,000+)...")
     promos = [2023, 2024, 2025]
     student_id = 0
     with open(os.path.join(output_dir, '05_etudiants.sql'), 'w') as f:
         f.write("-- Etudiants\n")
         for formation_id in range(1, formation_id + 1):
-            nb_etudiants = 50  # 50 per formation = ~5500 total
+            nb_etudiants = 120  # 120 per formation = ~13,200 total
             for _ in range(nb_etudiants):
                 student_id += 1
                 nom = fake.last_name()

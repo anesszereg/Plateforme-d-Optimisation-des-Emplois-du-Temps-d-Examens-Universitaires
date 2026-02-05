@@ -30,6 +30,44 @@ def init_session():
     if 'user' not in st.session_state:
         st.session_state.user = None
 
+def show_db_statistics(db):
+    """Display database statistics"""
+    try:
+        stats_query = """
+        SELECT 
+            (SELECT COUNT(*) FROM departements) as departements,
+            (SELECT COUNT(*) FROM formations) as formations,
+            (SELECT COUNT(*) FROM professeurs) as professeurs,
+            (SELECT COUNT(*) FROM etudiants) as etudiants,
+            (SELECT COUNT(*) FROM modules) as modules,
+            (SELECT COUNT(*) FROM lieu_examen) as salles,
+            (SELECT COUNT(*) FROM utilisateurs) as utilisateurs,
+            (SELECT COUNT(*) FROM examens) as examens
+        """
+        result = db.execute_query(stats_query)
+        if result:
+            stats = result[0]
+            
+            st.markdown("### 📊 Statistiques de la Base de Données")
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("🏛️ Départements", stats['departements'])
+                st.metric("📚 Formations", stats['formations'])
+            with col2:
+                st.metric("👨‍🏫 Professeurs", stats['professeurs'])
+                st.metric("🎓 Étudiants", stats['etudiants'])
+            with col3:
+                st.metric("📖 Modules", stats['modules'])
+                st.metric("🏫 Salles", stats['salles'])
+            with col4:
+                st.metric("👥 Utilisateurs", stats['utilisateurs'])
+                st.metric("📝 Examens", stats['examens'])
+            
+            st.markdown("---")
+    except Exception as e:
+        pass
+
 def login_form():
     st.title("Plateforme d'Examens Universitaires")
     st.markdown("### Connexion")
@@ -39,6 +77,9 @@ def login_form():
     if db is None:
         st.error("Impossible de se connecter a la base de donnees")
         st.stop()
+    
+    # Show database statistics
+    show_db_statistics(db)
     
     auth = Auth(db)
     
