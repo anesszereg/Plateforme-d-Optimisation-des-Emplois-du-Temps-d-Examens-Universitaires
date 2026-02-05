@@ -138,6 +138,34 @@ def generate_sql_files():
         f.write("-- Periode Examen\n")
         f.write("INSERT INTO periodes_examen (nom, date_debut, date_fin, session, annee_universitaire, actif) VALUES ('Session Normale Janvier 2025', '2025-01-20', '2025-02-15', 'normale', '2024-2025', true);\n")
     
+    # 7b. Inscriptions (students enrolled in modules of their formation)
+    # Target: 130,000+ inscriptions
+    print("Generating inscriptions (130,000+)...")
+    inscription_count = 0
+    with open(os.path.join(output_dir, '07b_inscriptions.sql'), 'w') as f:
+        f.write("-- Inscriptions (each student enrolled in modules of their formation)\n")
+        # For each formation, get its modules and enroll students
+        # Students are numbered 1 to ~13200, 120 per formation
+        # Modules are numbered, ~10 per formation
+        # To get 130k inscriptions: 13200 students * 10 modules each = 132,000
+        student_id = 0
+        module_start = 0
+        for formation_id in range(1, 111):  # 110 formations
+            nb_students_in_formation = 120
+            nb_modules_in_formation = 10  # approximate
+            
+            for s in range(nb_students_in_formation):
+                student_id += 1
+                # Enroll this student in ALL 10 modules of their formation
+                for m in range(nb_modules_in_formation):
+                    module_id = module_start + m + 1
+                    inscription_count += 1
+                    f.write(f"INSERT INTO inscriptions (etudiant_id, module_id, annee_universitaire, statut) VALUES ({student_id}, {module_id}, '2024-2025', 'inscrit');\n")
+            
+            module_start += nb_modules_in_formation
+    
+    print(f"  Generated {inscription_count} inscriptions")
+    
     # 8. Users with hashed passwords (SHA-256)
     import hashlib
     def hash_password(password):

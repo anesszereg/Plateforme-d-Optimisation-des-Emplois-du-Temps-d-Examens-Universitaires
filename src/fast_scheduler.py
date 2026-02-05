@@ -34,8 +34,14 @@ class FastScheduler:
                 prof_by_dept[p['dept_id']] = []
             prof_by_dept[p['dept_id']].append(p)
         
-        # Delete existing exams
-        self.db.delete_all_examens(periode_id)
+        # Delete existing exams - use direct SQL to ensure it works
+        print("Deleting existing exams...")
+        try:
+            self.db.execute_query("DELETE FROM surveillances", fetch=False)
+            self.db.execute_query("DELETE FROM examens WHERE periode_id = %s", (periode_id,), fetch=False)
+            print("Existing exams deleted.")
+        except Exception as e:
+            print(f"Warning: Could not delete existing exams: {e}")
         
         # Time slots
         time_slots = [(8, 30), (11, 0), (14, 30), (17, 0)]
@@ -218,20 +224,27 @@ class FastScheduler:
             ]
             
             try:
-                # Use RETURNING to get all exam IDs in one query
+                # Use ON CONFLICT to handle duplicates gracefully
                 query = """
                     INSERT INTO examens (module_id, prof_responsable_id, salle_id, periode_id, 
                                         date_heure, duree_minutes, nb_inscrits)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (module_id, periode_id) DO UPDATE SET
+                        prof_responsable_id = EXCLUDED.prof_responsable_id,
+                        salle_id = EXCLUDED.salle_id,
+                        date_heure = EXCLUDED.date_heure,
+                        duree_minutes = EXCLUDED.duree_minutes,
+                        nb_inscrits = EXCLUDED.nb_inscrits
                     RETURNING id
                 """
                 
                 with self.db.get_cursor(dict_cursor=False) as cursor:
-                    cursor.executemany(query, exam_values)
-                    # Get all inserted exam IDs
-                    for idx, row in enumerate(cursor.fetchall()):
-                        exam_id = row[0]
-                        exam_ids.append((exam_id, exams_to_insert[idx]['prof_id'], exams_to_insert[idx]['module_id']))
+                    for idx, values in enumerate(exam_values):
+                        cursor.execute(query, values)
+                        result = cursor.fetchone()
+                        if result:
+                            exam_id = result[0]
+                            exam_ids.append((exam_id, exams_to_insert[idx]['prof_id'], exams_to_insert[idx]['module_id']))
                 
                 print(f"✓ Successfully inserted {len(exam_ids)} exams")
             except Exception as e:

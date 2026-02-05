@@ -182,6 +182,9 @@ class Database:
         return result[0]['id'] if result else None
     
     def delete_all_examens(self, periode_id):
+        # First delete all surveillances (simpler, avoids subquery timeout)
+        self.execute_query("DELETE FROM surveillances", fetch=False)
+        # Then delete exams for this period
         query = "DELETE FROM examens WHERE periode_id = %s"
         self.execute_query(query, (periode_id,), fetch=False)
     

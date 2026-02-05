@@ -11,42 +11,56 @@
 
 ---
 
-## 🔐 Identifiants de Connexion
+## Identifiants de Connexion
 
 ### Administrateurs
 
-| Rôle | Email | Mot de passe |
+| Role | Email | Mot de passe |
 |------|-------|--------------|
 | **Vice-Doyen** | `vice.doyen@univ.dz` | `admin123` |
 | **Admin Examens** | `admin.examens@univ.dz` | `admin123` |
 
-### Chefs de Département
+### Chefs de Departement
 
-| Département | Email | Mot de passe |
+| Departement | Email | Mot de passe |
 |-------------|-------|--------------|
 | **Informatique** | `chef.info@univ.dz` | `chef123` |
-| **Mathématiques** | `chef.math@univ.dz` | `chef123` |
+| **Mathematiques** | `chef.math@univ.dz` | `chef123` |
 | **Physique** | `chef.phys@univ.dz` | `chef123` |
 | **Chimie** | `chef.chim@univ.dz` | `chef123` |
 | **Biologie** | `chef.bio@univ.dz` | `chef123` |
-| **Économie** | `chef.eco@univ.dz` | `chef123` |
+| **Economie** | `chef.eco@univ.dz` | `chef123` |
 | **Lettres** | `chef.lett@univ.dz` | `chef123` |
 
-### Professeurs (exemples)
+### Professeurs
 
 | Email | Mot de passe |
 |-------|--------------|
 | `prof1@university.edu` | `prof123` |
 | `prof2@university.edu` | `prof123` |
 | `prof3@university.edu` | `prof123` |
+| `prof4@university.edu` | `prof123` |
+| `prof5@university.edu` | `prof123` |
+| `prof6@university.edu` | `prof123` |
+| `prof7@university.edu` | `prof123` |
+| `prof8@university.edu` | `prof123` |
+| `prof9@university.edu` | `prof123` |
+| `prof10@university.edu` | `prof123` |
 
-### Étudiants (exemples)
+### Etudiants
 
 | Email | Mot de passe |
 |-------|--------------|
 | `etudiant1@student.university.edu` | `etudiant123` |
 | `etudiant2@student.university.edu` | `etudiant123` |
 | `etudiant3@student.university.edu` | `etudiant123` |
+| `etudiant4@student.university.edu` | `etudiant123` |
+| `etudiant5@student.university.edu` | `etudiant123` |
+| `etudiant6@student.university.edu` | `etudiant123` |
+| `etudiant7@student.university.edu` | `etudiant123` |
+| `etudiant8@student.university.edu` | `etudiant123` |
+| `etudiant9@student.university.edu` | `etudiant123` |
+| `etudiant10@student.university.edu` | `etudiant123` |
 
 ---
 
