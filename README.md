@@ -17,36 +17,36 @@
 
 | Rôle | Email | Mot de passe |
 |------|-------|--------------|
-| **Vice-Doyen** | `vice.doyen@univ.dz` | `ViceDoyen2024!` |
-| **Admin Examens** | `admin.examens@univ.dz` | `AdminExam2024!` |
+| **Vice-Doyen** | `vice.doyen@univ.dz` | `admin123` |
+| **Admin Examens** | `admin.examens@univ.dz` | `admin123` |
 
 ### Chefs de Département
 
 | Département | Email | Mot de passe |
 |-------------|-------|--------------|
-| **Informatique** | `chef.info@univ.dz` | `ChefInfo2024!` |
-| **Mathématiques** | `chef.math@univ.dz` | `ChefMath2024!` |
-| **Physique** | `chef.phys@univ.dz` | `ChefPhys2024!` |
-| **Chimie** | `chef.chim@univ.dz` | `ChefChim2024!` |
-| **Biologie** | `chef.bio@univ.dz` | `ChefBio2024!` |
-| **Économie** | `chef.eco@univ.dz` | `ChefEco2024!` |
-| **Lettres** | `chef.lett@univ.dz` | `ChefLett2024!` |
+| **Informatique** | `chef.info@univ.dz` | `chef123` |
+| **Mathématiques** | `chef.math@univ.dz` | `chef123` |
+| **Physique** | `chef.phys@univ.dz` | `chef123` |
+| **Chimie** | `chef.chim@univ.dz` | `chef123` |
+| **Biologie** | `chef.bio@univ.dz` | `chef123` |
+| **Économie** | `chef.eco@univ.dz` | `chef123` |
+| **Lettres** | `chef.lett@univ.dz` | `chef123` |
 
 ### Professeurs (exemples)
 
 | Email | Mot de passe |
 |-------|--------------|
-| `prof1@university.edu` | `Prof1Pass2024!` |
-| `prof2@university.edu` | `Prof2Pass2024!` |
-| `prof3@university.edu` | `Prof3Pass2024!` |
+| `prof1@university.edu` | `prof123` |
+| `prof2@university.edu` | `prof123` |
+| `prof3@university.edu` | `prof123` |
 
 ### Étudiants (exemples)
 
 | Email | Mot de passe |
 |-------|--------------|
-| `etudiant1@student.university.edu` | `Etudiant1Pass2024!` |
-| `etudiant2@student.university.edu` | `Etudiant2Pass2024!` |
-| `etudiant3@student.university.edu` | `Etudiant3Pass2024!` |
+| `etudiant1@student.university.edu` | `etudiant123` |
+| `etudiant2@student.university.edu` | `etudiant123` |
+| `etudiant3@student.university.edu` | `etudiant123` |
 
 ---
 

@@ -138,28 +138,47 @@ def generate_sql_files():
         f.write("-- Periode Examen\n")
         f.write("INSERT INTO periodes_examen (nom, date_debut, date_fin, session, annee_universitaire, actif) VALUES ('Session Normale Janvier 2025', '2025-01-20', '2025-02-15', 'normale', '2024-2025', true);\n")
     
-    # 8. Users with fixed passwords
-    print("Generating users...")
+    # 8. Users with hashed passwords (SHA-256)
+    import hashlib
+    def hash_password(password):
+        return hashlib.sha256(password.encode()).hexdigest()
+    
+    print("Generating users with hashed passwords...")
     with open(os.path.join(output_dir, '08_users.sql'), 'w') as f:
-        f.write("-- Utilisateurs\n")
+        f.write("-- Utilisateurs (passwords are SHA-256 hashed)\n")
+        f.write("-- Plain text passwords listed in comments for reference\n\n")
+        
         # Vice-Doyen
-        f.write("INSERT INTO utilisateurs (username, password_hash, role) VALUES ('vice.doyen@univ.dz', 'ViceDoyen2024!', 'vice_doyen');\n")
+        pwd = 'admin123'
+        f.write(f"-- vice.doyen@univ.dz / {pwd}\n")
+        f.write(f"INSERT INTO utilisateurs (username, password_hash, role) VALUES ('vice.doyen@univ.dz', '{hash_password(pwd)}', 'vice_doyen');\n\n")
+        
         # Admin Examens
-        f.write("INSERT INTO utilisateurs (username, password_hash, role) VALUES ('admin.examens@univ.dz', 'AdminExam2024!', 'admin_examens');\n")
+        pwd = 'admin123'
+        f.write(f"-- admin.examens@univ.dz / {pwd}\n")
+        f.write(f"INSERT INTO utilisateurs (username, password_hash, role) VALUES ('admin.examens@univ.dz', '{hash_password(pwd)}', 'admin_examens');\n\n")
+        
         # Chefs departement
         codes = ['info', 'math', 'phys', 'chim', 'bio', 'eco', 'lett']
+        f.write("-- Chefs de Departement\n")
         for i, code in enumerate(codes):
-            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, professeur_id, departement_id) VALUES ('chef.{code}@univ.dz', 'Chef{code.capitalize()}2024!', 'chef_departement', {i+1}, {i+1});\n")
+            pwd = 'chef123'
+            f.write(f"-- chef.{code}@univ.dz / {pwd}\n")
+            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, professeur_id, departement_id) VALUES ('chef.{code}@univ.dz', '{hash_password(pwd)}', 'chef_departement', {i+1}, {i+1});\n")
         
         # Professeurs (first 10 as examples)
         f.write("\n-- Professeurs\n")
         for prof_id in range(1, 11):
-            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, professeur_id) VALUES ('prof{prof_id}@university.edu', 'Prof{prof_id}Pass2024!', 'professeur', {prof_id});\n")
+            pwd = 'prof123'
+            f.write(f"-- prof{prof_id}@university.edu / {pwd}\n")
+            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, professeur_id) VALUES ('prof{prof_id}@university.edu', '{hash_password(pwd)}', 'professeur', {prof_id});\n")
         
         # Etudiants (first 10 as examples)
         f.write("\n-- Etudiants\n")
         for etu_id in range(1, 11):
-            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, etudiant_id) VALUES ('etudiant{etu_id}@student.university.edu', 'Etudiant{etu_id}Pass2024!', 'etudiant', {etu_id});\n")
+            pwd = 'etudiant123'
+            f.write(f"-- etudiant{etu_id}@student.university.edu / {pwd}\n")
+            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, etudiant_id) VALUES ('etudiant{etu_id}@student.university.edu', '{hash_password(pwd)}', 'etudiant', {etu_id});\n")
     
     print("\n✅ SQL files generated in database/ folder:")
     print("  - 01_departements.sql")
