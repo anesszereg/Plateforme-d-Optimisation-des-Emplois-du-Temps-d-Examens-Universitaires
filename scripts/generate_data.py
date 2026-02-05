@@ -112,15 +112,22 @@ def generate_professeurs(dept_ids):
     print("Génération des professeurs...")
     professeurs = []
     grades = ['Professeur', 'Maitre de conférences', 'Assistant', 'Vacataire']
+    used_emails = set()
+    prof_counter = 0
     
     for dept_id in dept_ids:
         nb_profs = random.randint(15, 25)
         for _ in range(nb_profs):
             nom = fake.last_name()
             prenom = fake.first_name()
-            email = f"{prenom.lower()}.{nom.lower()}@university.edu"
+            prof_counter += 1
+            email = f"{prenom.lower()}.{nom.lower()}.{prof_counter}@university.edu"
+            while email in used_emails:
+                prof_counter += 1
+                email = f"{prenom.lower()}.{nom.lower()}.{prof_counter}@university.edu"
+            used_emails.add(email)
             grade = random.choice(grades)
-            specialite = fake.job()
+            specialite = fake.job()[:100]  # Truncate to 100 chars
             
             professeurs.append((nom, prenom, email, dept_id, specialite, grade))
     
@@ -162,11 +169,18 @@ def generate_etudiants(formation_ids):
         VALUES (%s, %s, %s, %s, %s)
     """
     
-    batch_size = 1000
+    batch_size = 200  # Small batches for Supabase
     for i in range(0, len(etudiants), batch_size):
         batch = etudiants[i:i + batch_size]
-        db.execute_many(query, batch)
-        print(f"  Batch {i//batch_size + 1}: {len(batch)} étudiants insérés")
+        try:
+            db.execute_many(query, batch)
+        except Exception as e:
+            print(f"    Retry batch... {e}")
+            import time
+            time.sleep(2)
+            db.execute_many(query, batch)
+        if (i // batch_size + 1) % 10 == 0:
+            print(f"  {i + len(batch)} étudiants insérés...")
     
     print(f"✅ {len(etudiants)} étudiants créés")
     return len(etudiants)
@@ -222,10 +236,15 @@ def generate_inscriptions(module_ids):
     
     annee = "2024-2025"
     total_inserted = 0
-    batch_size = 2000  # Smaller batches to avoid timeout
+    batch_size = 500  # Very small batches to avoid Supabase timeout
     current_batch = []
     
     print(f"  Traitement de {len(etudiants)} étudiants...")
+    
+    query = """
+        INSERT INTO inscriptions (etudiant_id, module_id, annee_universitaire, statut)
+        VALUES (%s, %s, %s, %s)
+    """
     
     for i, etudiant in enumerate(etudiants):
         formation_modules = modules_by_formation.get(etudiant['formation_id'], [])
@@ -240,23 +259,26 @@ def generate_inscriptions(module_ids):
         
         # Insert batch when it reaches batch_size
         if len(current_batch) >= batch_size:
-            query = """
-                INSERT INTO inscriptions (etudiant_id, module_id, annee_universitaire, statut)
-                VALUES (%s, %s, %s, %s)
-            """
-            db.execute_many(query, current_batch)
-            total_inserted += len(current_batch)
-            print(f"    {total_inserted} inscriptions insérées...")
+            try:
+                db.execute_many(query, current_batch)
+                total_inserted += len(current_batch)
+                if total_inserted % 5000 == 0:
+                    print(f"    {total_inserted} inscriptions insérées...")
+            except Exception as e:
+                print(f"    Erreur batch, retry... {e}")
+                import time
+                time.sleep(1)
+                db.execute_many(query, current_batch)
+                total_inserted += len(current_batch)
             current_batch = []
     
     # Insert remaining
     if current_batch:
-        query = """
-            INSERT INTO inscriptions (etudiant_id, module_id, annee_universitaire, statut)
-            VALUES (%s, %s, %s, %s)
-        """
-        db.execute_many(query, current_batch)
-        total_inserted += len(current_batch)
+        try:
+            db.execute_many(query, current_batch)
+            total_inserted += len(current_batch)
+        except Exception as e:
+            print(f"    Erreur final batch: {e}")
     
     print(f"✅ {total_inserted} inscriptions créées")
     return total_inserted

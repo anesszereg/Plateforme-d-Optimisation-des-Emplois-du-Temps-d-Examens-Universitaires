@@ -17,38 +17,20 @@
 
 | Rôle | Email | Mot de passe |
 |------|-------|--------------|
-| **Vice-Doyen** | `vice.doyen@univ.dz` | `7Tlsi7pvytzE` |
-| **Admin Examens** | `admin.examens@univ.dz` | `GstDBcyhLMZ6` |
+| **Vice-Doyen** | `vice.doyen@univ.dz` | `ViceDoyen2024!` |
+| **Admin Examens** | `admin.examens@univ.dz` | `AdminExam2024!` |
 
 ### Chefs de Département
 
 | Département | Email | Mot de passe |
 |-------------|-------|--------------|
-| **Informatique** | `chef.info@univ.dz` | `AdaPhi2913` |
-| **Mathématiques** | `chef.math@univ.dz` | `BerCat4352` |
-| **Physique** | `chef.phys@univ.dz` | `BenCla0155` |
-| **Chimie** | `chef.chim@univ.dz` | `AdaMar8686` |
-| **Biologie** | `chef.bio@univ.dz` | `BenAdè3859` |
-| **Économie** | `chef.eco@univ.dz` | `BlaPau0501` |
-| **Lettres** | `chef.lett@univ.dz` | `AleAna6790` |
-
-### Professeurs (exemples)
-
-| Nom | Email | Mot de passe |
-|-----|-------|--------------|
-| Margaux Rousset | `margaux.rousset@university.edu` | `RouMar9597` |
-| Adrienne Joubert | `adrienne.joubert@university.edu` | `JouAdr8458` |
-| Nathalie Rousseau | `nathalie.rousseau@university.edu` | `RouNat5816` |
-
-### Étudiants (exemples)
-
-| Nom | Email | Mot de passe |
-|-----|-------|--------------|
-| Étienne Fischer | `étienne.fischer659@student.university.edu` | `FischerÉtienne2023` |
-| Victor Pires | `victor.pires182@student.university.edu` | `PiresVictor2025` |
-| Marcelle Joly | `marcelle.joly756@student.university.edu` | `JolyMarcelle2025` |
-
-> **Format mot de passe étudiant:** `NomPrénomPromo` (ex: `DupontJean2024`)
+| **Informatique** | `chef.info@univ.dz` | `ChefInfo2024!` |
+| **Mathématiques** | `chef.math@univ.dz` | `ChefMath2024!` |
+| **Physique** | `chef.phys@univ.dz` | `ChefPhys2024!` |
+| **Chimie** | `chef.chim@univ.dz` | `ChefChim2024!` |
+| **Biologie** | `chef.bio@univ.dz` | `ChefBio2024!` |
+| **Économie** | `chef.eco@univ.dz` | `ChefEco2024!` |
+| **Lettres** | `chef.lett@univ.dz` | `ChefLett2024!` |
 
 ---
 
