@@ -48,21 +48,21 @@ def show_db_statistics(db):
         if result:
             stats = result[0]
             
-            st.markdown("### 📊 Statistiques de la Base de Données")
+            st.markdown("### Statistiques de la Base de Données")
             
             col1, col2, col3, col4 = st.columns(4)
             with col1:
-                st.metric("🏛️ Départements", stats['departements'])
-                st.metric("📚 Formations", stats['formations'])
+                st.metric("Départements", stats['departements'])
+                st.metric("Formations", stats['formations'])
             with col2:
-                st.metric("👨‍🏫 Professeurs", stats['professeurs'])
-                st.metric("🎓 Étudiants", stats['etudiants'])
+                st.metric("Professeurs", stats['professeurs'])
+                st.metric("Étudiants", stats['etudiants'])
             with col3:
-                st.metric("📖 Modules", stats['modules'])
-                st.metric("🏫 Salles", stats['salles'])
+                st.metric("Modules", stats['modules'])
+                st.metric("Salles", stats['salles'])
             with col4:
-                st.metric("👥 Utilisateurs", stats['utilisateurs'])
-                st.metric("📝 Examens", stats['examens'])
+                st.metric("Utilisateurs", stats['utilisateurs'])
+                st.metric("Examens", stats['examens'])
             
             st.markdown("---")
     except Exception as e:
