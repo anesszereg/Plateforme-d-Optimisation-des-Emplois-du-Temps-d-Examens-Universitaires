@@ -51,16 +51,16 @@
 
 | Email | Mot de passe |
 |-------|--------------|
-| `etudiant1@student.university.edu` | `etudiant123` |
-| `etudiant2@student.university.edu` | `etudiant123` |
-| `etudiant3@student.university.edu` | `etudiant123` |
-| `etudiant4@student.university.edu` | `etudiant123` |
-| `etudiant5@student.university.edu` | `etudiant123` |
-| `etudiant6@student.university.edu` | `etudiant123` |
-| `etudiant7@student.university.edu` | `etudiant123` |
-| `etudiant8@student.university.edu` | `etudiant123` |
-| `etudiant9@student.university.edu` | `etudiant123` |
-| `etudiant10@student.university.edu` | `etudiant123` |
+| `valentine.dupont.1@student.university.edu` | `etude123` |
+| `aurélie.carlier.2@student.university.edu` | `etude123` |
+| `margaud.bourgeois.3@student.university.edu` | `etude123` |
+| `benjamin.samson.4@student.university.edu` | `etude123` |
+| `patrick.boyer.5@student.university.edu` | `etude123` |
+| `marcel.gaudin.6@student.university.edu` | `etude123` |
+| `christelle.duhamel.7@student.university.edu` | `etude123` |
+| `claudine.weber.8@student.university.edu` | `etude123` |
+| `noël.ledoux.9@student.university.edu` | `etude123` |
+| `laetitia.lopes.10@student.university.edu` | `etude123` |
 
 ---
 
