@@ -150,6 +150,16 @@ def generate_sql_files():
         codes = ['info', 'math', 'phys', 'chim', 'bio', 'eco', 'lett']
         for i, code in enumerate(codes):
             f.write(f"INSERT INTO utilisateurs (username, password_hash, role, professeur_id, departement_id) VALUES ('chef.{code}@univ.dz', 'Chef{code.capitalize()}2024!', 'chef_departement', {i+1}, {i+1});\n")
+        
+        # Professeurs (first 10 as examples)
+        f.write("\n-- Professeurs\n")
+        for prof_id in range(1, 11):
+            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, professeur_id) VALUES ('prof{prof_id}@university.edu', 'Prof{prof_id}Pass2024!', 'professeur', {prof_id});\n")
+        
+        # Etudiants (first 10 as examples)
+        f.write("\n-- Etudiants\n")
+        for etu_id in range(1, 11):
+            f.write(f"INSERT INTO utilisateurs (username, password_hash, role, etudiant_id) VALUES ('etudiant{etu_id}@student.university.edu', 'Etudiant{etu_id}Pass2024!', 'etudiant', {etu_id});\n")
     
     print("\n✅ SQL files generated in database/ folder:")
     print("  - 01_departements.sql")

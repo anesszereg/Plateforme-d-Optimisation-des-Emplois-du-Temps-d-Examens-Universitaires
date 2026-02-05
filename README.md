@@ -32,6 +32,22 @@
 | **Économie** | `chef.eco@univ.dz` | `ChefEco2024!` |
 | **Lettres** | `chef.lett@univ.dz` | `ChefLett2024!` |
 
+### Professeurs (exemples)
+
+| Email | Mot de passe |
+|-------|--------------|
+| `prof1@university.edu` | `Prof1Pass2024!` |
+| `prof2@university.edu` | `Prof2Pass2024!` |
+| `prof3@university.edu` | `Prof3Pass2024!` |
+
+### Étudiants (exemples)
+
+| Email | Mot de passe |
+|-------|--------------|
+| `etudiant1@student.university.edu` | `Etudiant1Pass2024!` |
+| `etudiant2@student.university.edu` | `Etudiant2Pass2024!` |
+| `etudiant3@student.university.edu` | `Etudiant3Pass2024!` |
+
 ---
 
 ## 📋 Description
